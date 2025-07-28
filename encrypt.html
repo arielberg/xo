@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Encrypt/Decrypt</title>
+  <script src="cryptojs/rollups/aes.js"></script>
+</head>
+<body>
+  <h2>CryptoJS Encrypt/Decrypt</h2>
+
+  <label for="inputText">Text:</label><br>
+  <textarea id="inputText" rows="3" cols="50"></textarea><br><br>
+
+  <label for="password">Password:</label><br>
+  <input id="password" type="text"><br><br>
+
+  <button onclick="encrypt()">Encrypt</button>
+  <button onclick="decrypt()">Decrypt</button>
+
+  <h3>Result:</h3>
+  <pre id="output"></pre>
+
+  <script>
+    function encrypt() {
+      const text = document.getElementById('inputText').value;
+      const pass = document.getElementById('password').value;
+      const ciphertext = CryptoJS.AES.encrypt(text, pass).toString();
+      document.getElementById('output').textContent = ciphertext;
+    }
+
+    function decrypt() {
+      const text = document.getElementById('inputText').value;
+      const pass = document.getElementById('password').value;
+      try {
+        const bytes = CryptoJS.AES.decrypt(text, pass);
+        const plaintext = bytes.toString(CryptoJS.enc.Utf8);
+        document.getElementById('output').textContent = plaintext || '[Invalid password or ciphertext]';
+      } catch (e) {
+        document.getElementById('output').textContent = '[Error decrypting]';
+      }
+    }
+  </script>
+</body>
+</html>

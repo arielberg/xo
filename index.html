@@ -307,6 +307,7 @@
                 <div class="connection-data">
                     <textarea id="connectionData" placeholder="Connection data will appear here..." readonly></textarea>
                     <button class="copy-btn" id="copyBtn">📋 Copy Connection Data</button>
+                    <button class="copy-btn" id="sendNFC">📡 Send via NFC</button>
                 </div>
             </div>
 
@@ -317,6 +318,7 @@
                     <button class="btn btn-primary" id="connectBtn" style="width: 100%; margin-top: 10px;">
                         🚀 Connect
                     </button>
+                    <button class="copy-btn" id="getNFC">📡 Read NFC</button>                    
                 </div>
             </div>
         </div>
@@ -348,12 +350,7 @@
                         { urls: 'stun:stun2.l.google.com:19302' }
                     ]
                 };
-
-                const btPermission = await navigator.permissions.query({ name: "bluetooth" });
-                if (btPermission.state !== "denied") {
-                // Do something
-                }
-
+                
                 this.initializeElements();
                 this.attachEventListeners();
                 this.initializeAsHost();
@@ -375,7 +372,9 @@
                     messageInput: document.getElementById('messageInput'),
                     sendBtn: document.getElementById('sendBtn'),
                     statusDot: document.getElementById('statusDot'),
-                    statusText: document.getElementById('statusText')
+                    statusText: document.getElementById('statusText'),
+                    sendNFC: document.getElementById('sendNFC'),
+                    getNFC: document.getElementById('getNFC')
                 };
             }
 
@@ -385,6 +384,9 @@
                 this.elements.connectBtn.addEventListener('click', () => this.connectToPeer());
                 this.elements.copyBtn.addEventListener('click', () => this.copyConnectionData());
                 this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.elements.sendNFC.addEventListener('click', () => this.sendUsingNFC());
+                this.elements.getNFC.addEventListener('click', () => this.readNFC());
+                
                 this.elements.messageInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') this.sendMessage();
                 });
@@ -604,6 +606,50 @@
                 }, 2000);
             }
 
+            async readNFC() {
+                if (!('NDEFReader' in window)) {
+                    alert('NFC not supported');
+                    return;
+                }
+                
+                try {
+                    const reader = new NDEFReader();
+                    await reader.scan();
+                    reader.onreading = event => {
+                    const record = event.message.records[0];
+                    if (record.recordType === "text") {
+                        const textDecoder = new TextDecoder();
+                        const data = textDecoder.decode(record.data);
+                        console.log("Received:", data);
+                        alert("Received: " + data);
+                    }
+                    };
+                } catch (err) {
+                    console.error(err);
+                    alert("Read failed: " + err);
+                }
+            }
+
+            async sendUsingNFC() {
+                if (!('NDEFWriter' in window)) {
+                    alert('NFC not supported');
+                    return;
+                }
+                
+                try {
+                    const writer = new NDEFWriter();
+                    await writer.write({
+                      records: [{
+                        recordType: "text",
+                        data: JSON.stringify({ msg: "Hello from PWA A!" })
+                      }]
+                    });
+                    alert("Data written to NFC tag!");
+                  } catch (err) {
+                    console.error(err);
+                    alert("Write failed: " + err);
+                }
+            }
             sendMessage() {
                 const message = this.elements.messageInput.value.trim();
                 if (!message || !this.isConnected || !this.dataChannel) return;

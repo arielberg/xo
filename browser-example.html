@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExecLoader Browser Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ExecLoader Browser Example</h1>
+        <p>This example demonstrates how to use the ExecLoader class in a browser environment.</p>
+        
+        <div>
+            <button onclick="loadFromUrl()">Load from URL</button>
+            <button onclick="loadFromString()">Load from JSON String</button>
+            <button onclick="showCommands()">Show Commands</button>
+            <button onclick="executeCommand()">Execute Command</button>
+            <button onclick="clearOutput()">Clear Output</button>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <!-- Include the ExecLoader class -->
+    <script src="exec-loader.js"></script>
+    
+    <script>
+        let execLoader;
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearOutput() {
+            output.textContent = '';
+        }
+        
+        async function loadFromUrl() {
+            try {
+                execLoader = new ExecLoader('./exec.json');
+                log('Loading exec.json from URL...');
+                const data = await execLoader.loadFromUrl();
+                log('Success! Loaded data: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Error loading from URL: ' + error.message);
+            }
+        }
+        
+        function loadFromString() {
+            try {
+                const jsonString = `{
+                    "name": "Browser Config",
+                    "version": "1.0.0",
+                    "config": {
+                        "theme": "dark",
+                        "animations": true
+                    },
+                    "commands": [
+                        {
+                            "name": "welcome",
+                            "description": "Show welcome message",
+                            "script": "alert('Welcome to ExecLoader!')"
+                        },
+                        {
+                            "name": "showTime",
+                            "description": "Display current time",
+                            "script": "alert('Current time: ' + new Date().toLocaleString())"
+                        }
+                    ]
+                }`;
+                
+                execLoader = new ExecLoader();
+                log('Loading from JSON string...');
+                const data = execLoader.loadFromString(jsonString);
+                log('Success! Loaded data: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Error loading from string: ' + error.message);
+            }
+        }
+        
+        function showCommands() {
+            if (!execLoader || !execLoader.isLoaded()) {
+                log('Error: No data loaded. Please load data first.');
+                return;
+            }
+            
+            const commands = execLoader.getCommands();
+            log('Available commands:');
+            commands.forEach(cmd => {
+                log(`  - ${cmd.name}: ${cmd.description || 'No description'}`);
+            });
+        }
+        
+        function executeCommand() {
+            if (!execLoader || !execLoader.isLoaded()) {
+                log('Error: No data loaded. Please load data first.');
+                return;
+            }
+            
+            const commands = execLoader.getCommands();
+            if (commands.length === 0) {
+                log('No commands available to execute.');
+                return;
+            }
+            
+            // Execute the first command as an example
+            const firstCommand = commands[0];
+            log(`Executing command: ${firstCommand.name}`);
+            execLoader.executeCommand(firstCommand.name);
+        }
+        
+        // Initialize with a welcome message
+        log('ExecLoader browser example loaded. Click buttons to test functionality.');
+    </script>
+</body>
+</html>

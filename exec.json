@@ -1,0 +1,31 @@
+{
+    "name": "Sample Execution Configuration",
+    "version": "1.0.0",
+    "config": {
+        "environment": "production",
+        "debug": false,
+        "timeout": 5000
+    },
+    "commands": [
+        {
+            "name": "initialize",
+            "description": "Initialize the application",
+            "script": "console.log('Application initialized')",
+            "params": {}
+        },
+        {
+            "name": "processData",
+            "description": "Process incoming data",
+            "function": "processData",
+            "params": {
+                "batchSize": 100,
+                "concurrent": true
+            }
+        }
+    ],
+    "metadata": {
+        "created": "2024-01-01",
+        "author": "System",
+        "description": "Execution configuration for data processing"
+    }
+}

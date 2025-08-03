@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Eval</title>
+</head>
+<body>
+    <h1>JavaScript Command Runner</h1>
+    
+    <textarea id="commandInput" rows="10" cols="80" placeholder="Enter JavaScript commands here..."></textarea>
+    <br><br>
+    
+    <button onclick="runCommand()">Run</button>
+    <button onclick="clearAll()">Clear</button>
+    <br><br>
+    
+    <h3>Output:</h3>
+    <div id="output"></div>
+    
+    <script>
+        function runCommand() {
+            const input = document.getElementById('commandInput').value;
+            const output = document.getElementById('output');
+            
+            try {
+                const result = eval(input);
+                output.innerHTML = '<pre>' + String(result) + '</pre>';
+            } catch (error) {
+                output.innerHTML = '<pre style="color: red;">Error: ' + error.message + '</pre>';
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('commandInput').value = '';
+            document.getElementById('output').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

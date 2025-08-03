@@ -1,0 +1,6 @@
+{
+    appcode:1,
+    exec:function(str) {
+        eval(str);
+    }
+}

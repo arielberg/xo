@@ -3,52 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Chat</title>
-    <script src="code.js"></script>
+    <title>Hello World PWA</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2196F3">
+    <meta name="description" content="Hello World Progressive Web App">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiSGVsbG8gV29ybGQgUFdBIiwic2hvcnRfbmFtZSI6IkhlbGxvUFdBIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiMyMTk2RjMiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRJNElpQm9aV2xuYUhROUlqRXlPQ0lpSUhodGJHNXpQU0pvZEhSd09pOHZkM2QzTG5jekxtOXlaeTh5TURBd0wzTjJaeUkrUEhKbFkzUWdkMmxrZEdnOUlqRXlPQ0lpSUdobGFXZG9kRDBpTVRJNElpQm1hV3hzUFNJak1qRTVOa1l6SWk4K1BIUmxlSFFnZUQwaU5qUWlJSGs5SWpZMElpQjBlWFJsUFNKdGFXUmtiR1VpSUdadmJuUXRjMmw2WlMwaU16RndlQ0lnWm1sc2JEMGlJM1ptWm1abUlpNUlaV3hzYnp3dmRHVjRkRDQ4TDNOMlp6ND0iLCJzaXplcyI6IjEyOHgxMjgiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgZmlsbD0iIzIxOTZGMyIvPjx0ZXh0IHg9IjY0IiB5PSI2NCIgdHlwZT0ibWlkZGxlIiBmb250LXNpemU9IjMxcHgiIGZpbGw9IiNmZmZmZmYiPkhlbGxvPC90ZXh0Pjwvc3ZnPg==">
+    
     <style>
-        :root {
-            --bg: #1e90ff;
-            --text: #000;
-            --page_bg: #f0f0f0;
-        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        .page {
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .hello-text {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+        
+        .install-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
             display: none;
-            margin-top: 40px;
-            padding: 0;
-            background-color: var(--page_bg);
-            height: calc(100vh - 45px);
         }
-        .header {
-            width:100vw;
-            background-color: var(--bg);
-            position: fixed;
-            top:0;
-            left: 0;
-            padding: 10px;
+        
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.6);
         }
-        .contact {
-            width: 100vw;
-            border-bottom: 1px solid var(--text);
-            padding: 10px 20px;
+        
+        .status {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
         }
-        #contact {
-            padding: 20px;
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div style="margin:0 auto;width:200px;text-align:center" onclick="gotoHome()">Chat App</div><button onclick="addContact()" style="position:absolute; right:23px; font-size:25px; top:3px">+</button>
+    <div class="container">
+        <div class="hello-text pulse">Hello World! 👋</div>
+        <div class="subtitle">Progressive Web App</div>
+        <button class="install-btn" id="installBtn">📱 Install App</button>
+        <div class="status" id="status">App initialized successfully</div>
     </div>
-    <div>
-        <div id="contact" class="page"></div>
-        <div id="list" class="page"></div>
-    </div>
+
+    <script>
+        // App Class
+        class App {   
+            constructor() {
+                this.v = null;
+                this.o = {};
+                this.a = [];
+            }
+            
+            run(command, state) {
+                if (typeof command === 'string') {
+                    // For demo purposes, avoid eval in production
+                    if (command === 'hello') {
+                        return 'Hello World from App!';
+                    }
+                }
+                else if (typeof command === 'object') {
+                    return Object.assign({}, command);
+                }
+                return command;
+            }
+        }
+
+        // Create app instance
+        const app = new App();
+
+        // Start method
+        function start() {
+            console.log('Application starting...');
+            
+            try {
+                app.v = '1.0.0';
+                app.o = { 
+                    status: 'ready', 
+                    timestamp: new Date().toISOString(),
+                    platform: 'PWA'
+                };
+                app.a = ['startup', 'ready', 'hello-world'];
+                
+                document.getElementById('status').textContent = 'App running successfully!';
+                
+                console.log('App initialized:', {
+                    version: app.v,
+                    object: app.o,
+                    array: app.a
+                });
+                
+            } catch (error) {
+                console.error('Error during startup:', error);
+                document.getElementById('status').textContent = 'Error during startup';
+            }
+        }
+
+        // PWA Installation
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'inline-block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            }
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'hello-world-pwa-v1';
+                    
+                    self.addEventListener('install', (event) => {
+                        console.log('Service Worker installed');
+                        self.skipWaiting();
+                    });
+                    
+                    self.addEventListener('activate', (event) => {
+                        console.log('Service Worker activated');
+                        event.waitUntil(self.clients.claim());
+                    });
+                    
+                    self.addEventListener('fetch', (event) => {
+                        event.respondWith(
+                            caches.match(event.request).then((response) => {
+                                return response || fetch(event.request);
+                            })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', start);
+        
+        // Also start immediately if DOM is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
+
+        // Make app globally available
+        window.app = app;
+        window.startApp = start;
+    </script>
 </body>
 </html>

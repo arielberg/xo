@@ -11,6 +11,7 @@
     
     <button onclick="runCommand()">Run</button>
     <button onclick="clearAll()">Clear</button>
+    <button onclick="saveAsMiniApp()">Save as MiniApp</button>
     <br><br>
     
     <h3>Output:</h3>
@@ -32,6 +33,42 @@
         function clearAll() {
             document.getElementById('commandInput').value = '';
             document.getElementById('output').innerHTML = '';
+        }
+        
+        function saveAsMiniApp() {
+            const code = document.getElementById('commandInput').value;
+            if (!code.trim()) {
+                alert('No code to save!');
+                return;
+            }
+            
+            const miniAppCode = `class miniApp {
+    constructor() {
+        this.code = \`${code.replace(/`/g, '\\`')}\`;
+    }
+    
+    run() {
+        try {
+            return eval(this.code);
+        } catch (error) {
+            console.error('Error:', error.message);
+            return error.message;
+        }
+    }
+}`;
+            
+            // Create and download the file
+            const blob = new Blob([miniAppCode], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'miniApp.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('MiniApp saved as miniApp.js');
         }
     </script>
 </body>

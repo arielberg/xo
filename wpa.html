@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World PWA</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="A beautiful Hello World Progressive Web App">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Hello World PWA">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkhlbGxvIFdvcmxkIFBXQSIsCiAgInNob3J0X25hbWUiOiAiSGVsbG8gUFdBIiwKICAiZGVzY3JpcHRpb24iOiAiQSBiZWF1dGlmdWwgSGVsbG8gV29ybGQgUHJvZ3Jlc3NpdmUgV2ViIEFwcCIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzY2N2VlYSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1USTRJaUJvWldsbmFIUTlJakV5T0NJZ2RtbGxkMEp2ZUQwaU1DQXdJREV5T0NBeU9EZ2lJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQR05wY21Oc1pTQmplRDBpTmpRaUlHTjVQU0kyTkNJZ2NqMGlOakFpSUdacGJHdzlJbWRzYVc1bFlYSXRaM0poWkdsbGJuUW9RbXgxWlNBd0pTQWlJaWs1TURBbElDOHZhVWRFT0Mwd0pTQWlJaWs1TURBbEtTQXZQajl3WTJseVkyeGxQZzB0SW0zMGF5UWdpRWY4VlNWV3VDWktNUWJRV3V5WldGWFpYbGpxSDRFekZUQ3NUUVRveXdLY3JEQVpUMk9HczBvZWZibm1vZUFBQ041eFBxSzlCWU01cEJoY0lBYmxrb1JzOGxUZWhUNmV3NFNHdG5OTFJLK1V3eGprNzNnTWpvNHNiU3cxb0FPVEdYOXhjeVRYMGRHODFsdWFMQVV1d0RPRW0yaUFaUUFGMnFBQ3VncDBsUVB1a0JDSnU4THQzNnBVclI5VGR3aHk5dUx0R3FsR1dxUkVZc21YUFBYYWpFOWp6SzNzUVJWRXRVNms2b3oxZW9ORXpYSWZ6TFFhSFZVa2tuaWVKeGJTeXNhc3ZVOExGT083dVlmUTNUNXVZNU9PY3JSVXZ2OE8raDZKMzBPcFNoc1VkcU0yVDhKeUdHNG9WUHR6cUoyNXV5cHliSVpGSGIwZGN0RWNXTllWWjMxcXl2K2ozWnp3UkJ2eGxWeFhxS29rSTN1YnJBQlJsdHpBV1JndE5mMDVId3RhOTE5c1NQME50Smptb01TRGJrNGY3OHZKanZmZWRKWmpYOGRnPSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTlRFeU1pSWdhR1ZwWjJoMFBTSTFNVEl5SWlCMmFXVjNRbTk0UFNJd0lEQWdOVEV5SWpVeE1qSTJJaUJZYldienBTSW9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQR05wY21Oc1pTQmplRDBpTWpVMklpQmplVDBpTWpVMklpQnlQU0l5TkRBaUlHWnBiR3c5SWtkc2FXNWXZWEF4RjNKeVlXUnBaVzUwS0VKc2RXVWdNQ1VnU1lJcE9UQXdKU0F2S0V4bWVXUlFkSGduUWpBbElDb3BPVEF3SlNrcElIOCtQR05wY21OcFJDQmplRDBpTWpVMklpQmplVDBpTWpVMklpQnlQU0l5TURBaUlHWnBiR3c5SW1kc2FXNW5ZZHlTZ1lHR1VKbGNFeFlZM0oGRVUwWkNRaUE5RGdDSlBzUlFUdlN3UUlRdE9vQ3JVbGdCc2hvUUJPME4IKlhsOXpiUWNQaytIZDNsdEt5REF6QW1JSHJtOC8vUENrNVBJdVFwK1ZOVzR5ZlMrR1V5SUFnTFBDODVCZ1orT3FMMGUvdXdYSStWUjlVOER0c0FHSWo4NlpjdENiVnlQdTlxR25PRjhwT1FvKzlGSFJ5b3owMkFSdVZRb09peWJOY1hBWElLem1Kam83aWNodCtjaDNKdzNKQnV5TE9Ub21VdSttZTJQWU12bFJRb094UmNzKzBoeEpieGRTVVlqQzEzRGE3NWQxZFNFTmE4WHpsdC8zZkp1cnNlYW9WQTRRZE9mbU1NU2FSTFJ6eHFnUT09IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0sCiAgImNhdGVnb3JpZXMiOiBbImVkdWNhdGlvbiIsICJ1dGlsaXRpZXMiXQp9">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        
+        .pwa-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        p {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            animation: fadeInUp 1s ease-out 0.6s both;
+            margin: 0.5rem;
+        }
+        
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button:active {
+            transform: translateY(-1px);
+        }
+        
+        .install-button {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            display: none;
+        }
+        
+        .status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 10px;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .message {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            color: #333;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        
+        .offline-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4444;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .offline-indicator.online {
+            background: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-indicator" id="offline-indicator">
+        📶 Online
+    </div>
+    
+    <div class="container">
+        <div class="pwa-badge">PWA</div>
+        <h1>Hello World!</h1>
+        <p>Progressive Web App Edition</p>
+        
+        <button class="button" onclick="showMessage()">Click Me!</button>
+        <button class="button install" id="install-button" onclick="installApp()">📱 Install App</button>
+        
+        <div class="status" id="status">
+            ✅ PWA Features Active
+        </div>
+        
+        <div id="message" class="message">
+            🎉 This PWA works offline and can be installed on your device!
+        </div>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'hello-world-pwa-v1';
+                    const urlsToCache = ['/'];
+                    
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(response => {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request);
+                                })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                        updateStatus('🔧 Service Worker registered');
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+        
+        // Install App functionality
+        let deferredPrompt;
+        const installButton = document.getElementById('install-button');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'inline-block';
+        });
+        
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        updateStatus('📱 App installed successfully!');
+                    }
+                    deferredPrompt = null;
+                    installButton.style.display = 'none';
+                }).catch(e=> {
+                    console.error('Failed to install app:', e);
+                    updateStatus('❌ App installation failed');
+                });
+            }
+        }
+        
+        // Online/Offline detection
+        const offlineIndicator = document.getElementById('offline-indicator');
+        
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineIndicator.textContent = '📶 Online';
+                offlineIndicator.className = 'offline-indicator online';
+            } else {
+                offlineIndicator.textContent = '📵 Offline';
+                offlineIndicator.className = 'offline-indicator';
+            }
+            offlineIndicator.style.display = 'block';
+            setTimeout(() => {
+                offlineIndicator.style.display = 'none';
+            }, 3000);
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Main app functionality
+        function showMessage() {
+            const message = document.getElementById('message');
+            message.classList.add('show');
+            createSparkles();
+            updateStatus('🎉 Interactive features working!');
+        }
+        
+        function updateStatus(text) {
+            const status = document.getElementById('status');
+            status.textContent = text;
+            status.style.animation = 'fadeInUp 0.5s ease-out';
+        }
+        
+        function createSparkles() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                    sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                    sparkle.style.animationDelay = Math.random() * 2 + 's';
+                    document.body.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        sparkle.remove();
+                    }, 2000);
+                }, i * 100);
+            }
+        }
+        
+        // Initial setup
+        window.addEventListener('load', () => {
+            setTimeout(createSparkles, 1000);
+            updateOnlineStatus();
+            
+            // Check if app is installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                updateStatus('📱 Running as installed PWA!');
+            }
+        });
+        
+        // Prevent zoom on iOS
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

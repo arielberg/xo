@@ -136,6 +136,55 @@
             border-left: 4px solid #2196F3;
         }
         
+        .debug-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #333;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .debug-panel h4 {
+            margin: 0 0 0.5rem 0;
+            color: #667eea;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .debug-log {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #28a745;
+        }
+        
+        .debug-log.error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        
+        .debug-log.warning {
+            border-left-color: #ffc107;
+            background: #fffbf0;
+        }
+        
+        .debug-toggle {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        
         .message {
             margin-top: 2rem;
             padding: 1rem;
@@ -223,23 +272,124 @@
             Look for the install button in your browser or the "Add to Home Screen" option in the menu.
         </div>
         
+        <button class="debug-toggle" onclick="toggleDebug()">🐛 Toggle Debug Info</button>
+        
+        <div class="debug-panel" id="debug-panel" style="display: none;">
+            <h4>🔧 PWA Installation Debug</h4>
+            <div id="debug-logs"></div>
+        </div>
+        
         <div id="message" class="message">
             🎉 This PWA works offline and can be installed on your device!
         </div>
     </div>
 
     <script>
+        // Debug logging system
+        const debugLogs = [];
+        let debugVisible = false;
+        
+        function addDebugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const log = { timestamp, message, type };
+            debugLogs.push(log);
+            
+            console.log(`[PWA Debug ${timestamp}] ${message}`);
+            
+            if (debugVisible) {
+                updateDebugPanel();
+            }
+        }
+        
+        function updateDebugPanel() {
+            const debugLogsElement = document.getElementById('debug-logs');
+            debugLogsElement.innerHTML = debugLogs.map(log => 
+                `<div class="debug-log ${log.type}">
+                    <strong>${log.timestamp}</strong> - ${log.message}
+                </div>`
+            ).join('');
+            
+            // Auto-scroll to bottom
+            debugLogsElement.scrollTop = debugLogsElement.scrollHeight;
+        }
+        
+        function toggleDebug() {
+            debugVisible = !debugVisible;
+            const panel = document.getElementById('debug-panel');
+            panel.style.display = debugVisible ? 'block' : 'none';
+            
+            if (debugVisible) {
+                updateDebugPanel();
+            }
+        }
+        
+        // Enhanced browser and environment detection
+        function detectEnvironment() {
+            const ua = navigator.userAgent;
+            const vendor = navigator.vendor;
+            
+            // Browser detection
+            let browser = 'Unknown';
+            if (/Chrome/i.test(ua) && /Google Inc/i.test(vendor)) browser = 'Chrome';
+            else if (/Firefox/i.test(ua)) browser = 'Firefox';
+            else if (/Safari/i.test(ua) && /Apple/i.test(vendor)) browser = 'Safari';
+            else if (/Edge/i.test(ua)) browser = 'Edge';
+            else if (/Opera/i.test(ua)) browser = 'Opera';
+            
+            // Platform detection
+            let platform = 'Unknown';
+            if (/Android/i.test(ua)) platform = 'Android';
+            else if (/iPhone|iPad|iPod/i.test(ua)) platform = 'iOS';
+            else if (/Windows/i.test(ua)) platform = 'Windows';
+            else if (/Mac/i.test(ua)) platform = 'macOS';
+            else if (/Linux/i.test(ua)) platform = 'Linux';
+            
+            // In-app browser detection
+            const isInApp = /wv|WebView|WhatsApp|Instagram|Facebook|Twitter|LinkedIn/i.test(ua);
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            
+            addDebugLog(`🌐 Environment: ${browser} on ${platform}`);
+            addDebugLog(`📱 In-app browser: ${isInApp ? 'Yes' : 'No'}`);
+            addDebugLog(`🏠 Standalone mode: ${isStandalone ? 'Yes' : 'No'}`);
+            
+            return { browser, platform, isInApp, isStandalone };
+        }
+        
+        // Check PWA capabilities
+        function checkPWASupport() {
+            const features = {
+                serviceWorker: 'serviceWorker' in navigator,
+                manifest: 'manifest' in document.createElement('link'),
+                beforeInstallPrompt: 'onbeforeinstallprompt' in window,
+                standalone: 'standalone' in navigator,
+                pushManager: 'PushManager' in window,
+                notifications: 'Notification' in window
+            };
+            
+            addDebugLog('🔍 PWA Feature Support:');
+            Object.entries(features).forEach(([feature, supported]) => {
+                addDebugLog(`  ${feature}: ${supported ? '✅' : '❌'}`);
+            });
+            
+            return features;
+        }
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
+                addDebugLog('🔧 Attempting Service Worker registration...');
+                
                 const swCode = `
                     const CACHE_NAME = 'hello-world-pwa-v1';
                     const urlsToCache = ['/'];
                     
                     self.addEventListener('install', event => {
+                        console.log('[SW] Installing...');
                         event.waitUntil(
                             caches.open(CACHE_NAME)
-                                .then(cache => cache.addAll(urlsToCache))
+                                .then(cache => {
+                                    console.log('[SW] Cache opened');
+                                    return cache.addAll(urlsToCache);
+                                })
                         );
                     });
                     
@@ -248,11 +398,17 @@
                             caches.match(event.request)
                                 .then(response => {
                                     if (response) {
+                                        console.log('[SW] Serving from cache:', event.request.url);
                                         return response;
                                     }
+                                    console.log('[SW] Fetching from network:', event.request.url);
                                     return fetch(event.request);
                                 })
                         );
+                    });
+                    
+                    self.addEventListener('activate', event => {
+                        console.log('[SW] Activated');
                     });
                 `;
                 
@@ -261,13 +417,21 @@
                 
                 navigator.serviceWorker.register(swUrl)
                     .then(registration => {
-                        console.log('SW registered: ', registration);
+                        addDebugLog('✅ Service Worker registered successfully');
+                        addDebugLog(`📍 SW Scope: ${registration.scope}`);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            addDebugLog('🔄 Service Worker update found');
+                        });
+                        
                         updateStatus('🔧 Service Worker registered');
                     })
                     .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
+                        addDebugLog(`❌ SW registration failed: ${registrationError.message}`, 'error');
                     });
             });
+        } else {
+            addDebugLog('❌ Service Worker not supported', 'error');
         }
         
         // Detect if opened in WhatsApp in-app browser
@@ -287,21 +451,44 @@
         const installButton = document.getElementById('install-button');
         
         window.addEventListener('beforeinstallprompt', (e) => {
+            addDebugLog('🎯 beforeinstallprompt event fired');
+            addDebugLog('📱 PWA installation prompt available');
+            
             e.preventDefault();
             deferredPrompt = e;
             installButton.style.display = 'inline-block';
+            
+            addDebugLog('✅ Install button shown');
+        });
+        
+        window.addEventListener('appinstalled', (evt) => {
+            addDebugLog('🎉 PWA was installed successfully!');
+            updateStatus('🎉 App installed successfully!');
         });
         
         function installApp() {
+            addDebugLog('👆 Install button clicked');
+            
             if (deferredPrompt) {
+                addDebugLog('🚀 Showing install prompt...');
                 deferredPrompt.prompt();
+                
                 deferredPrompt.userChoice.then((result) => {
+                    addDebugLog(`👤 User choice: ${result.outcome}`);
+                    
                     if (result.outcome === 'accepted') {
+                        addDebugLog('✅ User accepted installation');
                         updateStatus('📱 App installed successfully!');
+                    } else {
+                        addDebugLog('❌ User dismissed installation', 'warning');
                     }
+                    
                     deferredPrompt = null;
                     installButton.style.display = 'none';
                 });
+            } else {
+                addDebugLog('❌ No install prompt available', 'error');
+                addDebugLog('💡 Try: Add to Home Screen from browser menu', 'warning');
             }
         }
         
@@ -360,8 +547,42 @@
         window.addEventListener('load', () => {
             setTimeout(createSparkles, 1000);
             updateOnlineStatus();
-            detectWhatsAppBrowser();
-            checkInstallability();
+            
+            // Run diagnostics
+            addDebugLog('🔍 Starting PWA diagnostics...');
+            const env = detectEnvironment();
+            const support = checkPWASupport();
+            
+            // Check installation status
+            setTimeout(() => {
+                detectWhatsAppBrowser();
+                checkInstallability();
+                
+                // Final diagnostic summary
+                setTimeout(() => {
+                    addDebugLog('📊 Diagnostic Summary:');
+                    if (env.isStandalone) {
+                        addDebugLog('🎉 PWA is installed and running standalone!');
+                    } else if (support.beforeInstallPrompt && !env.isInApp) {
+                        addDebugLog('✅ PWA is installable in this browser');
+                    } else {
+                        addDebugLog('⚠️ Installation may be limited in this environment', 'warning');
+                        if (env.isInApp) {
+                            addDebugLog('💡 Suggestion: Open in main browser for installation', 'info');
+                        }
+                    }
+                }, 2000);
+            }, 1000);
+        });
+        
+        // Monitor display mode changes
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
+            if (e.matches) {
+                addDebugLog('🏠 App switched to standalone mode');
+                updateStatus('📱 Running as installed PWA!');
+            } else {
+                addDebugLog('🌐 App switched to browser mode');
+            }
         });
         
         // Detect if opened in WhatsApp in-app browser

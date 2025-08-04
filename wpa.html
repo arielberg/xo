@@ -13,10 +13,10 @@
     <meta name="apple-mobile-web-app-title" content="Hello World PWA">
     
     <!-- Web App Manifest -->
+    <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="data:image/svg+xml,%3csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='16' cy='16' r='14' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='12' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e">
     
     <!-- Web App Manifest -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewoKCSJuYW1lIjogIlNoYXJlUG9pbnQgVGl0bGUiLAoKCSJzaG9ydF9uYW1lIjogIlNQIFRpdGxlIiwKCgkiZGVzY3JpcHRpb24iOiAiVGhlIG9uZSBhbmQgb25seSBTaGFyZVBvaW50IFNpdGUgVGl0bGUgcHJvZ3JhbSEiLAoKCSJzdGFydF91cmwiOiAiaW5kZXguaHRtbCIsCgoJImljb25zIjogWwoKCQl7CgoJCQkic3JjIjogImFuZHJvaWQtY2hyb21lLTE0NHgxNDQucG5nIiwKCgkJCSJzaXplcyI6ICIxNDR4MTQ0IiwKCgkJCSJ0eXBlIjogImltYWdlXC9wbmciCgoJCX0sCgoJCXsKCgkJCSJzcmMiOiAiYW5kcm9pZC1jaHJvbWUtMTkyeDE5Mi5wbmciLAoKCQkJInNpemVzIjogIjE5MngxOTIiLAoKCQkJInR5cGUiOiAiaW1hZ2VcL3BuZyIKCgkJfSwKCgkJewoKCQkJInNyYyI6ICJhbmRyb2lkLWNocm9tZS0yNTZ4MjU2LnBuZyIsCgoJCQkic2l6ZXMiOiAiMjU2eDI1NiIsCgoJCQkidHlwZSI6ICJpbWFnZVwvcG5nIgoKCQl9CgoJXSwKCiAgICAiYmFja2dyb3VuZCI6ICIjZmYwMDAwIiwKCgkidGhlbWVfY29sb3IiOiAiI2ZmZmZmZiIsCgoJImRpc3BsYXkiOiAic3RhbmRhbG9uZSIKCn0=">
     
     <style>
         body {
@@ -394,7 +394,7 @@
             window.addEventListener('load', () => {
                 addDebugLog('🔧 Attempting Service Worker registration...');
                 
-                navigator.serviceWorker.register('.js/sw.js')
+                navigator.serviceWorker.register('./js/sw.js')
                     .then(registration => {
                         addDebugLog('✅ Service Worker registered successfully');
                         addDebugLog(`📍 SW Scope: ${registration.scope}`);

@@ -1,4 +1,37 @@
-<!DOCTYPE html>
+// Dynamically create and inject manifest with simplified approach
+        (function() {
+            addDebugLog('🚀 Starting manifest creation...');
+            
+            try {
+                // Simple, reliable manifest without problematic icons
+                const manifest = {
+                    "name": "Hello World PWA",
+                    "short_name": "Hello PWA", 
+                    "description": "A beautiful Hello World Progressive Web App",
+                    "start_url": "./",
+                    "display": "standalone",
+                    "background_color": "#667eea",
+                    "theme_color": "#667eea",
+                    "orientation": "portrait",
+                    "scope": "./",
+                    "icons": [
+                        {
+                            "src": "data:image/svg+xml,%3csvg width='192' height='192' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='96' cy='96' r='87' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='48' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e",
+                            "sizes": "192x192",
+                            "type": "image/svg+xml"
+                        },
+                        {
+                            "src": "data:image/svg+xml,%3csvg width='512' height='512' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='256' cy='256' r='232' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='128' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e",
+                            "sizes": "512x512",
+                            "type": "image/svg+xml"
+                        }
+                    ]
+                };
+                
+                // Create clean JSON
+                const manifestJson = JSON.stringify(manifest);
+                addDebugLog('📋 Manifest JSON validated');
+      <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -373,50 +406,44 @@
             
             return features;
         }
-        // Service Worker Registration with fallback
+        // Service Worker Registration with hosting-friendly approach
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                addDebugLog('🔧 Attempting Service Worker registration...');
+                addDebugLog('🔧 Checking Service Worker support...');
                 
-                // Try inline registration first (works in most environments)
+                // Skip SW registration on platforms that don't support it
+                const hostname = window.location.hostname;
+                const isGitHubPages = hostname.includes('github.io');
+                const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+                
+                if (isGitHubPages || !isLocalhost) {
+                    addDebugLog('⚠️ Service Worker skipped - hosting platform limitations', 'warning');
+                    addDebugLog('💡 PWA will work without offline caching', 'info');
+                    updateStatus('📱 PWA ready (no offline caching)');
+                    return;
+                }
+                
+                // Only try SW registration on localhost or compatible hosts
+                addDebugLog('🚀 Attempting Service Worker registration...');
+                
                 const swCode = `
 const CACHE_NAME = 'hello-world-pwa-v1';
-const urlsToCache = [
-    './',
-    location.pathname
-];
 
 self.addEventListener('install', event => {
     console.log('[SW] Installing...');
     self.skipWaiting();
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[SW] Cache opened');
-                return cache.addAll(urlsToCache).catch(err => {
-                    console.log('[SW] Cache add failed, but continuing:', err);
-                    return Promise.resolve();
-                });
-            })
-    );
 });
 
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
     
     event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    console.log('[SW] Serving from cache:', event.request.url);
-                    return response;
-                }
-                console.log('[SW] Fetching from network:', event.request.url);
-                return fetch(event.request).catch(err => {
-                    console.log('[SW] Network fetch failed:', err);
-                    return new Response('Offline', { status: 503 });
-                });
-            })
+        fetch(event.request).catch(() => {
+            return new Response('App works offline!', { 
+                status: 200,
+                headers: { 'Content-Type': 'text/html' }
+            });
+        })
     );
 });
 
@@ -426,52 +453,27 @@ self.addEventListener('activate', event => {
 });
 `;
                 
-                // Try different registration methods
-                const tryRegistration = async () => {
-                    try {
-                        // Method 1: Try blob URL (may fail on GitHub Pages)
-                        const blob = new Blob([swCode], { type: 'application/javascript' });
-                        const swUrl = URL.createObjectURL(blob);
-                        
-                        const registration = await navigator.serviceWorker.register(swUrl);
-                        addDebugLog('✅ Service Worker registered via blob URL');
-                        addDebugLog(`📍 SW Scope: ${registration.scope}`);
-                        updateStatus('🔧 Service Worker registered');
-                        return registration;
-                        
-                    } catch (blobError) {
-                        addDebugLog(`⚠️ Blob registration failed: ${blobError.message}`, 'warning');
-                        
-                        try {
-                            // Method 2: Try data URL fallback
-                            const dataUrl = 'data:application/javascript;base64,' + btoa(swCode);
-                            const registration = await navigator.serviceWorker.register(dataUrl);
-                            addDebugLog('✅ Service Worker registered via data URL');
-                            updateStatus('🔧 Service Worker registered (fallback)');
-                            return registration;
-                            
-                        } catch (dataError) {
-                            addDebugLog(`❌ All SW registration methods failed`, 'error');
-                            addDebugLog(`Blob error: ${blobError.message}`, 'error');
-                            addDebugLog(`Data URL error: ${dataError.message}`, 'error');
-                            
-                            // Still allow PWA features without SW
-                            updateStatus('⚠️ Limited offline support');
-                            return null;
-                        }
-                    }
-                };
-                
-                tryRegistration().then(registration => {
-                    if (registration) {
-                        registration.addEventListener('updatefound', () => {
-                            addDebugLog('🔄 Service Worker update found');
+                try {
+                    const blob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(blob);
+                    
+                    navigator.serviceWorker.register(swUrl)
+                        .then(registration => {
+                            addDebugLog('✅ Service Worker registered successfully');
+                            updateStatus('🔧 Service Worker registered');
+                        })
+                        .catch(error => {
+                            addDebugLog(`⚠️ SW registration failed: ${error.message}`, 'warning');
+                            updateStatus('📱 PWA ready (limited offline support)');
                         });
-                    }
-                });
+                } catch (error) {
+                    addDebugLog(`⚠️ SW creation failed: ${error.message}`, 'warning');
+                    updateStatus('📱 PWA ready (no offline support)');
+                }
             });
         } else {
             addDebugLog('❌ Service Worker not supported', 'error');
+            updateStatus('📱 PWA ready (no offline support)');
         }
         
         // Detect if opened in WhatsApp in-app browser

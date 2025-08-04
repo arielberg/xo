@@ -115,6 +115,27 @@
             font-size: 0.9rem;
         }
         
+        .share-instructions {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 10px;
+            color: #333;
+            font-size: 0.9rem;
+            border-left: 4px solid #FFC107;
+        }
+        
+        .browser-hint {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 10px;
+            color: #333;
+            font-size: 0.9rem;
+            border-left: 4px solid #2196F3;
+        }
+        
         .message {
             margin-top: 2rem;
             padding: 1rem;
@@ -186,10 +207,20 @@
         <p>Progressive Web App Edition</p>
         
         <button class="button" onclick="showMessage()">Click Me!</button>
-        <button class="button install" id="install-button" onclick="installApp()">📱 Install App</button>
+        <button class="button install-button" id="install-button" onclick="installApp()">📱 Install App</button>
         
         <div class="status" id="status">
             ✅ PWA Features Active
+        </div>
+        
+        <div class="share-instructions">
+            📱 <strong>Shared via WhatsApp?</strong><br>
+            Tap "Open in Browser" for the best experience and to install this app!
+        </div>
+        
+        <div class="browser-hint" id="browser-hint">
+            💡 <strong>Install Tip:</strong><br>
+            Look for the install button in your browser or the "Add to Home Screen" option in the menu.
         </div>
         
         <div id="message" class="message">
@@ -239,6 +270,18 @@
             });
         }
         
+        // Detect if opened in WhatsApp in-app browser
+        function detectWhatsAppBrowser() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isWhatsApp = /WhatsApp/i.test(userAgent);
+            const isInAppBrowser = /wv|WebView/i.test(userAgent);
+            
+            if (isWhatsApp || isInAppBrowser) {
+                document.getElementById('browser-hint').style.display = 'block';
+                updateStatus('📱 Opened in in-app browser - open in main browser for install');
+            }
+        }
+        
         // Install App functionality
         let deferredPrompt;
         const installButton = document.getElementById('install-button');
@@ -258,9 +301,6 @@
                     }
                     deferredPrompt = null;
                     installButton.style.display = 'none';
-                }).catch(e=> {
-                    console.error('Failed to install app:', e);
-                    updateStatus('❌ App installation failed');
                 });
             }
         }
@@ -320,12 +360,43 @@
         window.addEventListener('load', () => {
             setTimeout(createSparkles, 1000);
             updateOnlineStatus();
+            detectWhatsAppBrowser();
+            checkInstallability();
+        });
+        
+        // Detect if opened in WhatsApp in-app browser
+        function detectWhatsAppBrowser() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isWhatsApp = /WhatsApp/i.test(userAgent);
+            const isInAppBrowser = /wv|WebView/i.test(userAgent);
             
-            // Check if app is installed
+            if (isWhatsApp || isInAppBrowser) {
+                document.getElementById('browser-hint').style.display = 'block';
+                updateStatus('📱 Opened in in-app browser - open in main browser for install');
+            }
+        }
+        
+        // Enhanced install detection
+        function checkInstallability() {
+            // Check if already installed (standalone mode)
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 updateStatus('📱 Running as installed PWA!');
+                document.querySelector('.share-instructions').style.display = 'none';
+                document.getElementById('browser-hint').style.display = 'none';
+                return true;
             }
-        });
+            
+            // Check if PWA install is supported
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                setTimeout(() => {
+                    if (!deferredPrompt) {
+                        document.getElementById('browser-hint').style.display = 'block';
+                    }
+                }, 3000);
+            }
+            
+            return false;
+        }
         
         // Prevent zoom on iOS
         document.addEventListener('gesturestart', function (e) {

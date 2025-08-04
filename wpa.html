@@ -13,6 +13,10 @@
     <meta name="apple-mobile-web-app-title" content="Hello World PWA">
     
     <!-- Web App Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="data:image/svg+xml,%3csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='16' cy='16' r='14' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='12' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e">
+    
+    <!-- Web App Manifest -->
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkhlbGxvIFdvcmxkIFBXQSIsCiAgInNob3J0X25hbWUiOiAiSGVsbG8gUFdBIiwKICAiZGVzY3JpcHRpb24iOiAiQSBiZWF1dGlmdWwgSGVsbG8gV29ybGQgUHJvZ3Jlc3NpdmUgV2ViIEFwcCIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzY2N2VlYSIsCiAgInRoZW1lX2NvbG9yIjogIiM2NjdlZWEiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1USTRJaUJvWldsbmFIUTlJakV5T0NJZ2RtbGxkMEp2ZUQwaU1DQXdJREV5T0NBeU9EZ2lJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQR05wY21Oc1pTQmplRDBpTmpRaUlHTjVQU0kyTkNJZ2NqMGlOakFpSUdacGJHdzlJbWRzYVc1bFlYSXRaM0poWkdsbGJuUW9RbXgxWlNBd0pTQWlJaWs1TURBbElDOHZhVWRFT0Mwd0pTQWlJaWs1TURBbEtTQXZQajl3WTJseVkyeGxQZzB0SW0zMGF5UWdpRWY4VlNWV3VDWktNUWJRV3V5WldGWFpYbGpxSDRFekZUQ3NUUVRveXdLY3JEQVpUMk9HczBvZWZibm1vZUFBQ041eFBxSzlCWU01cEJoY0lBYmxrb1JzOGxUZWhUNmV3NFNHdG5OTFJLK1V3eGprNzNnTWpvNHNiU3cxb0FPVEdYOXhjeVRYMGRHODFsdWFMQVV1d0RPRW0yaUFaUUFGMnFBQ3VncDBsUVB1a0JDSnU4THQzNnBVclI5VGR3aHk5dUx0R3FsR1dxUkVZc21YUFBYYWpFOWp6SzNzUVJWRXRVNms2b3oxZW9ORXpYSWZ6TFFhSFZVa2tuaWVKeGJTeXNhc3ZVOExGT083dVlmUTNUNXVZNU9PY3JSVXZ2OE8raDZKMzBPcFNoc1VkcU0yVDhKeUdHNG9WUHR6cUoyNXV5cHliSVpGSGIwZGN0RWNXTllWWjMxcXl2K2ozWnp3UkJ2eGxWeFhxS29rSTN1YnJBQlJsdHpBV1JndE5mMDVId3RhOTE5c1NQME50Smptb01TRGJrNGY3OHZKanZmZWRKWmpYOGRnPSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTlRFeU1pSWdhR1ZwWjJoMFBTSTFNVEl5SWlCMmFXVjNRbTk0UFNJd0lEQWdOVEV5SWpVeE1qSTJJaUJZYldienBTSW9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQR05wY21Oc1pTQmplRDBpTWpVMklpQmplVDBpTWpVMklpQnlQU0l5TkRBaUlHWnBiR3c5SWtkc2FXNWXZWEF4RjNKeVlXUnBaVzUwS0VKc2RXVWdNQ1VnU1lJcE9UQXdKU0F2S0V4bWVXUlFkSGduUWpBbElDb3BPVEF3SlNrcElIOCtQR05wY21OcFJDQmplRDBpTWpVMklpQmplVDBpTWpVMklpQnlQU0l5TURBaUlHWnBiR3c5SW1kc2FXNW5ZZHlTZ1lHR1VKbGNFeFlZM0oGRVUwWkNRaUE5RGdDSlBzUlFUdlN3UUlRdE9vQ3JVbGdCc2hvUUJPME4IKlhsOXpiUWNQaytIZDNsdEt5REF6QW1JSHJtOC8vUENrNVBJdVFwK1ZOVzR5ZlMrR1V5SUFnTFBDODVCZ1orT3FMMGUvdXdYSStWUjlVOER0c0FHSWo4NlpjdENiVnlQdTlxR25PRjhwT1FvKzlGSFJ5b3owMkFSdVZRb09peWJOY1hBWElLem1Kam83aWNodCtjaDNKdzNKQnV5TE9Ub21VdSttZTJQWU12bFJRb094UmNzKzBoeEpieGRTVVlqQzEzRGE3NWQxZFNFTmE4WHpsdC8zZkp1cnNlYW9WQTRRZE9mbU1NU2FSTFJ6eHFnUT09IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0sCiAgImNhdGVnb3JpZXMiOiBbImVkdWNhdGlvbiIsICJ1dGlsaXRpZXMiXQp9">
     
     <style>
@@ -355,7 +359,7 @@
             return { browser, platform, isInApp, isStandalone };
         }
         
-        // Check PWA capabilities
+        // Check PWA capabilities with hosting-aware logic
         function checkPWASupport() {
             const features = {
                 serviceWorker: 'serviceWorker' in navigator,
@@ -366,77 +370,52 @@
                 notifications: 'Notification' in window
             };
             
+            const hostname = window.location.hostname;
+            const isGitHubPages = hostname.includes('github.io');
+            const isStaticHost = isGitHubPages || hostname.includes('netlify') || hostname.includes('vercel');
+            
             addDebugLog('🔍 PWA Feature Support:');
             Object.entries(features).forEach(([feature, supported]) => {
-                addDebugLog(`  ${feature}: ${supported ? '✅' : '❌'}`);
+                let status = supported ? '✅' : '❌';
+                if (feature === 'serviceWorker' && isStaticHost) {
+                    status = '⚠️ (limited on static hosts)';
+                }
+                addDebugLog(`  ${feature}: ${status}`);
             });
+            
+            if (isStaticHost) {
+                addDebugLog('ℹ️ Running on static hosting - some features limited');
+                addDebugLog('💡 PWA will still be installable and work great!');
+            }
             
             return features;
         }
-        // Service Worker Registration with hosting-friendly approach
+        // Service Worker Registration with external file
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                addDebugLog('🔧 Checking Service Worker support...');
+                addDebugLog('🔧 Attempting Service Worker registration...');
                 
-                // Skip SW registration on platforms that don't support it
-                const hostname = window.location.hostname;
-                const isGitHubPages = hostname.includes('github.io');
-                const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-                
-                if (isGitHubPages || !isLocalhost) {
-                    addDebugLog('⚠️ Service Worker skipped - hosting platform limitations', 'warning');
-                    addDebugLog('💡 PWA will work without offline caching', 'info');
-                    updateStatus('📱 PWA ready (no offline caching)');
-                    return;
-                }
-                
-                // Only try SW registration on localhost or compatible hosts
-                addDebugLog('🚀 Attempting Service Worker registration...');
-                
-                const swCode = `
-const CACHE_NAME = 'hello-world-pwa-v1';
-
-self.addEventListener('install', event => {
-    console.log('[SW] Installing...');
-    self.skipWaiting();
-});
-
-self.addEventListener('fetch', event => {
-    if (event.request.method !== 'GET') return;
-    
-    event.respondWith(
-        fetch(event.request).catch(() => {
-            return new Response('App works offline!', { 
-                status: 200,
-                headers: { 'Content-Type': 'text/html' }
-            });
-        })
-    );
-});
-
-self.addEventListener('activate', event => {
-    console.log('[SW] Activated');
-    event.waitUntil(clients.claim());
-});
-`;
-                
-                try {
-                    const blob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(blob);
-                    
-                    navigator.serviceWorker.register(swUrl)
-                        .then(registration => {
-                            addDebugLog('✅ Service Worker registered successfully');
-                            updateStatus('🔧 Service Worker registered');
-                        })
-                        .catch(error => {
-                            addDebugLog(`⚠️ SW registration failed: ${error.message}`, 'warning');
-                            updateStatus('📱 PWA ready (limited offline support)');
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        addDebugLog('✅ Service Worker registered successfully');
+                        addDebugLog(`📍 SW Scope: ${registration.scope}`);
+                        addDebugLog(`📍 SW Script URL: ${registration.active?.scriptURL || 'pending'}`);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            addDebugLog('🔄 Service Worker update found');
+                            const newWorker = registration.installing;
+                            newWorker?.addEventListener('statechange', () => {
+                                addDebugLog(`🔄 SW State: ${newWorker.state}`);
+                            });
                         });
-                } catch (error) {
-                    addDebugLog(`⚠️ SW creation failed: ${error.message}`, 'warning');
-                    updateStatus('📱 PWA ready (no offline support)');
-                }
+                        
+                        updateStatus('🔧 Service Worker registered');
+                    })
+                    .catch(error => {
+                        addDebugLog(`❌ SW registration failed: ${error.message}`, 'error');
+                        addDebugLog('💡 Make sure sw.js file exists in the same directory', 'warning');
+                        updateStatus('⚠️ Limited offline support');
+                    });
             });
         } else {
             addDebugLog('❌ Service Worker not supported', 'error');

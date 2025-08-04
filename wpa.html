@@ -395,7 +395,7 @@
             window.addEventListener('load', () => {
                 addDebugLog('🔧 Attempting Service Worker registration...');
                 
-                navigator.serviceWorker.register('./sw.js')
+                navigator.serviceWorker.register('.js/sw.js')
                     .then(registration => {
                         addDebugLog('✅ Service Worker registered successfully');
                         addDebugLog(`📍 SW Scope: ${registration.scope}`);

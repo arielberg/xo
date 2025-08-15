@@ -1,18 +1,18 @@
-// Dynamic JavaScript Object Loader
-class DynamicJSLoader {
-    constructor() {
-        this.moduleCache = new Map();
-    }
+let moduleCache = new Map();
+    
 
-    async initApp(type, app ) {
+export function installPWA (elementToWrap) {
+    console.log('loaded');
+}
+
+
+export initApp( type, app ) {
         try {
             const url = this.get( type, app );
             if (!url) {
                 throw new Error('No URL generated for loading');
             }
 
-            console.log('Loading from URL:', url);
-            console.log('Loading from URL:', app);
             // Check cache first
             if (this.moduleCache.has(url)) {
                 console.log('Using cached module');
@@ -42,7 +42,7 @@ class DynamicJSLoader {
         }
     }
 
-    loadAndExecuteJS(jsCode) {
+function loadAndExecuteJS(jsCode) {
         try {
             // Create a safe execution context
             const moduleContext = {
@@ -85,27 +85,15 @@ class DynamicJSLoader {
         }
     }
 
-    get(command, type, op = null) {
+export function get(command, type, op = null) {
         if (typeof command === 'undefined' || command === null) {
             return '';
         }
 
         if (typeof command === 'string') {
-            // Handle localStorage caching
-            /*
-            const cacheKey = `${type}_${command}`;
             
-            if (localStorage.hasOwnProperty(cacheKey)) {
-                const cached = localStorage.getItem(cacheKey);
-                console.log('Found cached URL:', cached);
-                // You might want to return cached URL or validate it
-            } else {
-                // Cache the command for future use
-                localStorage.setItem(cacheKey, command);
-            }
-            */
             switch (command) {
-                                   
+
                 case 'eval':
                     try {
                         return eval(type);
@@ -127,25 +115,14 @@ class DynamicJSLoader {
                     console.warn('Unknown type:', type);
                    
             }
-            return type;
         }
-
-        return '';
-    }
+        return type;        
+}
 
     // Utility method to clear cache
-    clearCache() {
+ function clearCache() {
         this.moduleCache.clear();
         console.log('Module cache cleared');
     }
 
-    // Utility method to preload modules
-    async preloadModule(type, app) {
-        try {
-            await this.initApp(type, app );
-            console.log('Module preloaded successfully');
-        } catch (error) {
-            console.error('Failed to preload module:', error);
-        }
-    }
-}
+

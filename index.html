@@ -3,21 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <script>
-        localStorage.setItem('app','example.json');
-    </script>
-    <script src="js/loader.js"></script>  
-    <script>
+
+    <script type="module" >
+        import {installPWA } from './js/loader.js';
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
 
-                const loader = new DynamicJSLoader();
-                const module = loader.initApp('load', 'example.js').then((module)=>{
-                    console.log('Main app loaded:', module);
-                });               
+                 
+            init('eval:alert("Hello, World!")');          
         });
     </script>
 </head>
 <body>   
+    hello world
 </body>
 </html>

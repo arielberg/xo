@@ -11,6 +11,21 @@
   "categories": ["education", "utilities"],
   "lang": "en",
   "dir": "ltr",
+  "share_target": {
+    "action": "/handle-share", 
+    "method": "POST", 
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [
+        {
+          "name": "file",
+          "accept": [".web3"]
+        }
+      ]
+    },
+    "enctype": "multipart/form-data"
+  },
   "icons": [
     {
       "src": "data:image/svg+xml,%3csvg width='192' height='192' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='96' cy='96' r='87' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='48' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e",
@@ -29,6 +44,20 @@
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3csvg width='390' height='844' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='192' height='192' rx='48' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='48' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "data:image/svg+xml,%3csvg width='1280' height='720' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='192' height='192' rx='48' fill='%23667eea'/%3e%3ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white' font-family='Arial' font-size='48' font-weight='bold'%3eHW%3c/text%3e%3c/svg%3e",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }

@@ -11,8 +11,8 @@
   "categories": ["education", "utilities"],
   "lang": "en",
   "dir": "ltr",
+  "action": "/handle-share", 
   "share_target": {
-    "action": "/handle-share", 
     "method": "POST", 
     "params": {
       "title": "title",

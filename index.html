@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
 
     <script type="module" >
-        import {installPWA } from './js/loader.js';
+        import { initApp } from './js/loader.js';
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-
-                 
-            init('eval:alert("Hello, World!")');          
+            initApp();          
         });
     </script>
 </head>
 <body>   
-    hello world
+    <div id="app">
+        <div id="tabs"></div>
+        <div id="content"></div>
+        <div id="footer"></div>
+    </div>
 </body>
 </html>

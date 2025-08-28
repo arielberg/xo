@@ -1,0 +1,5 @@
+[
+    {"path": "/users.js","title":"Users","icon":"settings"},
+    {"path": "/apps.js","title":"Apps","icon":"settings"},
+    {"path": "/settings.js","title":"Settings","icon":"settings"}
+]

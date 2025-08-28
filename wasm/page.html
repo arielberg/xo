@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+async function init() {
+  const response = await fetch("example.wasm");
+  const bytes = await response.arrayBuffer();
+  const { instance } = await WebAssembly.instantiate(bytes);
+
+  console.log("3 + 4 =", instance.exports.add(3, 4)); // אמור להחזיר 7
+}
+init();
+</script>
+</body>
+</html>

@@ -1,698 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Chat</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
-            height: 90vh;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff4757;
-        }
-
-        .status-dot.connected {
-            background: #2ed573;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .connection-setup {
-            padding: 30px;
-            text-align: center;
-        }
-
-        .connection-buttons {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #f1f2f6;
-            color: #2f3542;
-            border: 2px solid #ddd;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .qr-container {
-            margin: 20px 0;
-        }
-
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .connection-data {
-            margin: 20px 0;
-        }
-
-        .connection-data textarea {
-            width: 100%;
-            height: 120px;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            font-family: monospace;
-            font-size: 12px;
-            resize: none;
-            background: #f8f9fa;
-        }
-
-        .copy-btn {
-            margin-top: 10px;
-            width: 100%;
-            padding: 12px;
-            background: #2ed573;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .copy-btn:hover {
-            background: #26d068;
-        }
-
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            display: none;
-        }
-
-        .chat-container.active {
-            display: flex;
-        }
-
-        .messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
-        .message {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message.me {
-            align-items: flex-end;
-        }
-
-        .message.peer {
-            align-items: flex-start;
-        }
-
-        .message.system {
-            align-items: center;
-        }
-
-        .message-bubble {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            word-wrap: break-word;
-        }
-
-        .message.me .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .message.peer .message-bubble {
-            background: white;
-            color: #2f3542;
-            border: 1px solid #ddd;
-        }
-
-        .message.system .message-bubble {
-            background: #ffeaa7;
-            color: #2d3436;
-            font-size: 14px;
-            font-style: italic;
-        }
-
-        .message-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 5px;
-        }
-
-        .input-container {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 10px;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            outline: none;
-            font-size: 16px;
-        }
-
-        .message-input:focus {
-            border-color: #667eea;
-        }
-
-        .send-btn {
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                height: 100vh;
-                border-radius: 0;
-            }
-        }
-    </style>
-    <script src="qrcode/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2P Chat</title>
+<style>
+/* --- CSS נשאר כמעט כפי שהוא --- */
+* {margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);height:100vh;display:flex;align-items:center;justify-content:center;}
+.container{width:100%;max-width:400px;height:90vh;background:white;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.1);display:flex;flex-direction:column;overflow:hidden;}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;text-align:center;position:relative;}
+.status{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:14px;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#ff4757;}
+.status-dot.connected{background:#2ed573;animation:pulse 2s infinite;}
+@keyframes pulse{0%{transform:scale(1);opacity:1;}50%{transform:scale(1.2);opacity:0.7;}100%{transform:scale(1);opacity:1;}}
+.connection-setup{padding:30px;text-align:center;}
+.connection-buttons{display:flex;gap:15px;margin-bottom:30px;}
+.btn{flex:1;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
+.btn-secondary{background:#f1f2f6;color:#2f3542;border:2px solid #ddd;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,0.1);}
+.btn.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
+.qr-container{margin:20px 0;}
+#qrcode{display:flex;justify-content:center;margin:20px 0;}
+.connection-data{margin:20px 0;}
+.connection-data textarea{width:100%;height:120px;padding:15px;border:2px solid #ddd;border-radius:12px;font-family:monospace;font-size:12px;resize:none;background:#f8f9fa;}
+.copy-btn{margin-top:10px;width:100%;padding:12px;background:#2ed573;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
+.copy-btn:hover{background:#26d068;}
+.chat-container{flex:1;display:flex;flex-direction:column;display:none;}
+.chat-container.active{display:flex;}
+.messages{flex:1;padding:20px;overflow-y:auto;background:#f8f9fa;}
+.message{margin-bottom:15px;display:flex;flex-direction:column;}
+.message.me{align-items:flex-end;}
+.message.peer{align-items:flex-start;}
+.message.system{align-items:center;}
+.message-bubble{max-width:80%;padding:12px 16px;border-radius:18px;word-wrap:break-word;}
+.message.me .message-bubble{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
+.message.peer .message-bubble{background:white;color:#2f3542;border:1px solid #ddd;}
+.message.system .message-bubble{background:#ffeaa7;color:#2d3436;font-size:14px;font-style:italic;}
+.message-time{font-size:11px;color:#999;margin-top:5px;}
+.input-container{padding:20px;background:white;border-top:1px solid #eee;display:flex;gap:10px;}
+.message-input{flex:1;padding:12px 16px;border:2px solid #ddd;border-radius:25px;outline:none;font-size:16px;}
+.message-input:focus{border-color:#667eea;}
+.send-btn{width:50px;height:50px;border:none;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;}
+.send-btn:hover{transform:scale(1.1);}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.hidden{display:none !important;}
+@media(max-width:480px){.container{height:100vh;border-radius:0;}}
+</style>
+<script src="qrcode/qrcode.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>P2P Chat</h1>
-            <div class="status">
-                <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Disconnected</span>
+<div class="container">
+    <div class="header">
+        <h1>P2P Chat</h1>
+        <div class="status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Disconnected</span>
+        </div>
+    </div>
+
+    <div class="connection-setup" id="connectionSetup">
+        <div class="connection-buttons">
+            <button class="btn btn-primary active" id="hostBtn">📱 Host Chat</button>
+            <button class="btn btn-secondary" id="joinBtn">🔗 Join Chat</button>
+        </div>
+
+        <div id="hostMode">
+            <p style="margin-bottom: 10px; color: #666;">Share this QR code or connection data with your friend:</p>
+            <div id="qrcode"></div>
+            <div class="connection-data">
+                <textarea id="connectionData" placeholder="Connection data will appear here..." readonly></textarea>
+                <button class="copy-btn" id="copyBtn">📋 Copy Connection Data</button>
+            </div>
+            <p style="margin-bottom: 10px; color: #666;">Paste the answer from peer here:</p>
+            <div class="connection-data">
+                <textarea id="answerData" placeholder="Paste peer answer here..."></textarea>
+                <button class="btn btn-primary" id="applyAnswerBtn">📥 Apply Answer</button>
             </div>
         </div>
 
-        <div class="connection-setup" id="connectionSetup">
-            <div class="connection-buttons">
-                <button class="btn btn-primary active" id="hostBtn">
-                    📱 Host Chat
-                </button>
-                <button class="btn btn-secondary" id="joinBtn">
-                    🔗 Join Chat
-                </button>
-            </div>
-
-            <div id="hostMode">
-                <p style="margin-bottom: 20px; color: #666;">Share this QR code or connection data with your friend:</p>
-                <div id="qrcode"></div>
-                <div class="connection-data">
-                    <textarea id="connectionData" placeholder="Connection data will appear here..." readonly></textarea>
-                    <button class="copy-btn" id="copyBtn">📋 Copy Connection Data</button>
-                    <button class="copy-btn" id="sendNFC">📡 Send via NFC</button>
-                </div>
-            </div>
-
-            <div id="joinMode" class="hidden">
-                <p style="margin-bottom: 20px; color: #666;">Paste the connection data from your friend:</p>
-                <div class="connection-data">
-                    <textarea id="peerConnectionData" placeholder="Paste connection data here..."></textarea>
-                    <button class="btn btn-primary" id="connectBtn" style="width: 100%; margin-top: 10px;">
-                        🚀 Connect
-                    </button>
-                    <button class="copy-btn" id="getNFC">📡 Read NFC</button>                    
-                </div>
-            </div>
-        </div>
-
-        <div class="chat-container" id="chatContainer">
-            <div class="messages" id="messages"></div>
-            <div class="input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." maxlength="500">
-                <button class="send-btn" id="sendBtn" disabled>
-                    ➤
-                </button>
+        <div id="joinMode" class="hidden">
+            <p style="margin-bottom: 20px; color: #666;">Paste the connection data from your friend:</p>
+            <div class="connection-data">
+                <textarea id="peerConnectionData" placeholder="Paste connection data here..."></textarea>
+                <button class="btn btn-primary" id="connectBtn" style="width: 100%; margin-top: 10px;">🚀 Connect</button>              
             </div>
         </div>
     </div>
 
-    <script>
-        class P2PChat {
-            constructor() {
-                this.peerConnection = null;
-                this.dataChannel = null;
-                this.isHost = true;
-                this.isConnected = false;
-                
-                // WebRTC configuration with Google STUN servers
-                this.rtcConfig = {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' },
-                        { urls: 'stun:stun2.l.google.com:19302' }
-                    ]
-                };
-                
-                this.initializeElements();
-                this.attachEventListeners();
-                this.initializeAsHost();
-            }
+    <div class="chat-container" id="chatContainer">
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." maxlength="500">
+            <button class="send-btn" id="sendBtn" disabled>➤</button>
+        </div>
+    </div>
+</div>
 
-            initializeElements() {
-                this.elements = {
-                    hostBtn: document.getElementById('hostBtn'),
-                    joinBtn: document.getElementById('joinBtn'),
-                    hostMode: document.getElementById('hostMode'),
-                    joinMode: document.getElementById('joinMode'),
-                    connectionSetup: document.getElementById('connectionSetup'),
-                    chatContainer: document.getElementById('chatContainer'),
-                    connectionData: document.getElementById('connectionData'),
-                    peerConnectionData: document.getElementById('peerConnectionData'),
-                    connectBtn: document.getElementById('connectBtn'),
-                    copyBtn: document.getElementById('copyBtn'),
-                    messages: document.getElementById('messages'),
-                    messageInput: document.getElementById('messageInput'),
-                    sendBtn: document.getElementById('sendBtn'),
-                    statusDot: document.getElementById('statusDot'),
-                    statusText: document.getElementById('statusText'),
-                    sendNFC: document.getElementById('sendNFC'),
-                    getNFC: document.getElementById('getNFC')
-                };
-            }
+<script>
+class P2PChat {
+    constructor() {
+        this.peerConnection = null;
+        this.dataChannel = null;
+        this.isHost = true;
+        this.isConnected = false;
+        this.rtcConfig = { iceServers:[{urls:'stun:stun.l.google.com:19302'}] };
+        this.initializeElements();
+        this.attachEventListeners();
+        this.initializeAsHost();
+    }
 
-            attachEventListeners() {
-                this.elements.hostBtn.addEventListener('click', () => this.switchToHostMode());
-                this.elements.joinBtn.addEventListener('click', () => this.switchToJoinMode());
-                this.elements.connectBtn.addEventListener('click', () => this.connectToPeer());
-                this.elements.copyBtn.addEventListener('click', () => this.copyConnectionData());
-                this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
-                this.elements.sendNFC.addEventListener('click', () => this.sendUsingNFC());
-                this.elements.getNFC.addEventListener('click', () => this.readNFC());
-                
-                this.elements.messageInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.sendMessage();
-                });
-                this.elements.messageInput.addEventListener('input', () => {
-                    this.elements.sendBtn.disabled = !this.elements.messageInput.value.trim() || !this.isConnected;
-                });
-            }
+    initializeElements() {
+        this.elements = {
+            hostBtn: document.getElementById('hostBtn'),
+            joinBtn: document.getElementById('joinBtn'),
+            hostMode: document.getElementById('hostMode'),
+            joinMode: document.getElementById('joinMode'),
+            connectionSetup: document.getElementById('connectionSetup'),
+            chatContainer: document.getElementById('chatContainer'),
+            connectionData: document.getElementById('connectionData'),
+            peerConnectionData: document.getElementById('peerConnectionData'),
+            answerData: document.getElementById('answerData'),
+            applyAnswerBtn: document.getElementById('applyAnswerBtn'),
+            connectBtn: document.getElementById('connectBtn'),
+            copyBtn: document.getElementById('copyBtn'),
+            messages: document.getElementById('messages'),
+            messageInput: document.getElementById('messageInput'),
+            sendBtn: document.getElementById('sendBtn'),
+            statusDot: document.getElementById('statusDot'),
+            statusText: document.getElementById('statusText')
+        };
+    }
 
-            switchToHostMode() {
-                this.isHost = true;
-                this.elements.hostBtn.classList.add('active');
-                this.elements.joinBtn.classList.remove('active');
-                this.elements.hostMode.classList.remove('hidden');
-                this.elements.joinMode.classList.add('hidden');
-                this.initializeAsHost();
-            }
-
-            switchToJoinMode() {
-                this.isHost = false;
-                this.elements.joinBtn.classList.add('active');
-                this.elements.hostBtn.classList.remove('active');
-                this.elements.joinMode.classList.remove('hidden');
-                this.elements.hostMode.classList.add('hidden');
-            }
-            
-            async initializeAsHost() {
-                try {
-                    this.updateStatus('connecting', 'Creating connection...');
-                    
-                    this.peerConnection = new RTCPeerConnection(this.rtcConfig);
-                    this.setupPeerConnectionEvents();
-
-                    // Create data channel
-                    this.dataChannel = this.peerConnection.createDataChannel('chat', { ordered: true });
-                    this.setupDataChannelEvents(this.dataChannel);
-
-                    // Create offer
-                    const offer = await this.peerConnection.createOffer();
-                    await this.peerConnection.setLocalDescription(offer);
-
-                    // Wait for ICE gathering to complete
-                    await this.waitForICEGathering();
-                    var jobj = this.peerConnection.localDescription;
-                    const connectionData = JSON.stringify(jobj);
-                   // const connectionData = temp.replace(/[\\n\\r\r\n]/g,"");
-
-                    this.elements.connectionData.value = connectionData;
-                    
-                    // Generate QR code
-                    this.generateQRCode(connectionData);
-                    
-                    this.updateStatus('waiting', 'Waiting for peer...');
-                } catch (error) {
-                    console.error('Error initializing as host:', error);
-                    this.addSystemMessage('Error creating connection: ' + error.message);
-                }
-            }
-
-            async connectToPeer() {
-                try {
-                    const connectionDataStr = this.elements.peerConnectionData.value.trim();
-                    if (!connectionDataStr) {
-                        alert('Please paste the connection data');
-                        return;
-                    }
-
-                    this.updateStatus('connecting', 'Connecting...');
-
-                    const remoteDesc = JSON.parse(connectionDataStr);
-                    
-                    this.peerConnection = new RTCPeerConnection(this.rtcConfig);
-                    this.setupPeerConnectionEvents();
-
-                    // Set up data channel event for incoming channel
-                    this.peerConnection.ondatachannel = (event) => {
-                        this.dataChannel = event.channel;
-                        this.setupDataChannelEvents(this.dataChannel);
-                    };
-
-                    await this.peerConnection.setRemoteDescription(remoteDesc);
-                    const answer = await this.peerConnection.createAnswer();
-                    await this.peerConnection.setLocalDescription(answer);
-
-                    // Wait for ICE gathering
-                    await this.waitForICEGathering();
-
-                    // In a real app, you'd send this answer back to the host
-                    // For demo purposes, we'll show it for manual exchange
-                    const answerData = JSON.stringify(this.peerConnection.localDescription);
-                    
-                    // Show answer data for host to paste back
-                    alert('Copy this answer data and send it to the host:\n\n' + answerData);
-                    
-                } catch (error) {
-                    console.error('Error connecting to peer:', error);
-                    this.addSystemMessage('Error connecting: ' + error.message);
-                    this.updateStatus('disconnected', 'Connection failed');
-                }
-            }
-
-            setupPeerConnectionEvents() {
-                this.peerConnection.onconnectionstatechange = () => {
-                    const state = this.peerConnection.connectionState;
-                    console.log('Connection state:', state);
-                    
-                    switch (state) {
-                        case 'connected':
-                            this.onConnectionEstablished();
-                            break;
-                        case 'disconnected':
-                        case 'failed':
-                        case 'closed':
-                            this.onConnectionLost();
-                            break;
-                        case 'connecting':
-                            this.updateStatus('connecting', 'Connecting...');
-                            break;
-                    }
-                };
-
-                this.peerConnection.oniceconnectionstatechange = () => {
-                    console.log('ICE connection state:', this.peerConnection.iceConnectionState);
-                };
-            }
-
-            setupDataChannelEvents(channel) {
-                channel.onopen = () => {
-                    console.log('Data channel opened');
-                    this.onConnectionEstablished();
-                };
-
-                channel.onclose = () => {
-                    console.log('Data channel closed');
-                    this.onConnectionLost();
-                };
-
-                channel.onmessage = (event) => {
-                    this.addMessage(event.data, 'peer');
-                };
-
-                channel.onerror = (error) => {
-                    console.error('Data channel error:', error);
-                };
-            }
-
-            async waitForICEGathering() {
-                return new Promise((resolve) => {
-                    if (this.peerConnection.iceGatheringState === 'complete') {
-                        resolve();
-                        return;
-                    }
-
-                    const checkState = () => {
-                        if (this.peerConnection.iceGatheringState === 'complete') {
-                            this.peerConnection.removeEventListener('icegatheringstatechange', checkState);
-                            resolve();
-                        }
-                    };
-
-                    this.peerConnection.addEventListener('icegatheringstatechange', checkState);
-                    
-                    // Fallback timeout
-                    setTimeout(resolve, 5000);
-                });
-            }
-
-            onConnectionEstablished() {
-                this.isConnected = true;
-                this.updateStatus('connected', 'Connected');
-                this.elements.connectionSetup.style.display = 'none';
-                this.elements.chatContainer.classList.add('active');
-                this.addSystemMessage('Connected! You can now chat securely.');
-                this.elements.messageInput.focus();
-            }
-
-            onConnectionLost() {
-                this.isConnected = false;
-                this.updateStatus('disconnected', 'Disconnected');
-                this.elements.sendBtn.disabled = true;
-                this.addSystemMessage('Connection lost. Please refresh to reconnect.');
-            }
-
-            updateStatus(status, text) {
-                this.elements.statusText.textContent = text;
-                this.elements.statusDot.className = 'status-dot';
-                
-                if (status === 'connected') {
-                    this.elements.statusDot.classList.add('connected');
-                }
-            }
-
-            generateQRCode(data) {
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = '';
-             
-                const qrcode = new QRCode(document.getElementById('qrcode'), {
-                    text:this.elements.connectionData.value,
-                    width: 250,
-                    height: 250,
-                    colorDark : '#000',
-                    colorLight : '#fff',
-                    correctLevel : QRCode.CorrectLevel.H
-                  });
-            }
-
-            copyConnectionData() {
-                this.elements.connectionData.select();
-                document.execCommand('copy');
-                
-                const originalText = this.elements.copyBtn.textContent;
-                this.elements.copyBtn.textContent = '✅ Copied!';
-                this.elements.copyBtn.style.background = '#00b894';
-                
-                setTimeout(() => {
-                    this.elements.copyBtn.textContent = originalText;
-                    this.elements.copyBtn.style.background = '#2ed573';
-                }, 2000);
-            }
-
-            async readNFC() {
-                if (!('NDEFReader' in window)) {
-                    alert('NFC not supported');
-                    return;
-                }
-                
-                try {
-                    const reader = new NDEFReader();
-                    await reader.scan();
-                    reader.onreading = event => {
-                    const record = event.message.records[0];
-                    if (record.recordType === "text") {
-                        const textDecoder = new TextDecoder();
-                        const data = textDecoder.decode(record.data);
-                        console.log("Received:", data);
-                        alert("Received: " + data);
-                    }
-                    };
-                } catch (err) {
-                    console.error(err);
-                    alert("Read failed: " + err);
-                }
-            }
-
-            async sendUsingNFC() {
-                if (!('NDEFWriter' in window)) {
-                    alert('NFC not supported');
-                    return;
-                }
-                
-                try {
-                    const writer = new NDEFWriter();
-                    await writer.write({
-                      records: [{
-                        recordType: "text",
-                        data: JSON.stringify({ msg: "Hello from PWA A!" })
-                      }]
-                    });
-                    alert("Data written to NFC tag!");
-                  } catch (err) {
-                    console.error(err);
-                    alert("Write failed: " + err);
-                }
-            }
-            sendMessage() {
-                const message = this.elements.messageInput.value.trim();
-                if (!message || !this.isConnected || !this.dataChannel) return;
-
-                try {
-                    this.dataChannel.send(message);
-                    this.addMessage(message, 'me');
-                    this.elements.messageInput.value = '';
-                    this.elements.sendBtn.disabled = true;
-                } catch (error) {
-                    console.error('Error sending message:', error);
-                    this.addSystemMessage('Failed to send message');
-                }
-            }
-
-            addMessage(text, sender) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${sender}`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = 'message-bubble';
-                bubble.textContent = text;
-                
-                const time = document.createElement('div');
-                time.className = 'message-time';
-                time.textContent = new Date().toLocaleTimeString();
-                
-                messageDiv.appendChild(bubble);
-                messageDiv.appendChild(time);
-                
-                this.elements.messages.appendChild(messageDiv);
-                this.elements.messages.scrollTop = this.elements.messages.scrollHeight;
-            }
-
-            addSystemMessage(text) {
-                this.addMessage(text, 'system');
-            }
-        }
-
-        // Initialize the app when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            new P2PChat();
+    attachEventListeners() {
+        this.elements.hostBtn.addEventListener('click', () => this.switchToHostMode());
+        this.elements.joinBtn.addEventListener('click', () => this.switchToJoinMode());
+        this.elements.connectBtn.addEventListener('click', () => this.connectToPeer());
+        this.elements.copyBtn.addEventListener('click', () => this.copyConnectionData());
+        this.elements.applyAnswerBtn.addEventListener('click', () => this.applyAnswer());
+        this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+        this.elements.messageInput.addEventListener('keypress', (e) => { if(e.key==='Enter') this.sendMessage(); });
+        this.elements.messageInput.addEventListener('input', () => { 
+            this.elements.sendBtn.disabled = !this.elements.messageInput.value.trim() || !this.isConnected;
         });
-    </script>
+    }
+
+    switchToHostMode() {
+        this.isHost = true;
+        this.elements.hostBtn.classList.add('active');
+        this.elements.joinBtn.classList.remove('active');
+        this.elements.hostMode.classList.remove('hidden');
+        this.elements.joinMode.classList.add('hidden');
+        this.initializeAsHost();
+    }
+
+    switchToJoinMode() {
+        this.isHost = false;
+        this.elements.joinBtn.classList.add('active');
+        this.elements.hostBtn.classList.remove('active');
+        this.elements.joinMode.classList.remove('hidden');
+        this.elements.hostMode.classList.add('hidden');
+    }
+
+    async initializeAsHost() {
+        try {
+            this.updateStatus('connecting','Creating connection...');
+            this.peerConnection = new RTCPeerConnection(this.rtcConfig);
+            this.setupPeerConnectionEvents();
+            this.dataChannel = this.peerConnection.createDataChannel('chat',{ordered:true});
+            this.setupDataChannelEvents(this.dataChannel);
+            const offer = await this.peerConnection.createOffer();
+            await this.peerConnection.setLocalDescription(offer);
+            await this.waitForICEGathering();
+            this.elements.connectionData.value = JSON.stringify(this.peerConnection.localDescription);
+            this.updateStatus('waiting','Waiting for peer...');
+        } catch (err) { console.error(err); this.addSystemMessage('Error creating connection'); }
+    }
+
+    async applyAnswer() {
+        try {
+            const answerDesc = JSON.parse(this.elements.answerData.value.trim());
+            await this.peerConnection.setRemoteDescription(answerDesc);
+            this.addSystemMessage('Answer applied. Waiting for data channel...');
+        } catch(err){console.error(err); alert('Invalid answer JSON');}
+    }
+
+    async connectToPeer() {
+        try {
+            const connectionDataStr = this.elements.peerConnectionData.value.trim();
+            if(!connectionDataStr){ alert('Paste connection data'); return; }
+            this.updateStatus('connecting','Connecting...');
+            const remoteDesc = JSON.parse(connectionDataStr);
+            this.peerConnection = new RTCPeerConnection(this.rtcConfig);
+            this.setupPeerConnectionEvents();
+            this.peerConnection.ondatachannel = (e) => { 
+                this.dataChannel = e.channel;
+                this.setupDataChannelEvents(this.dataChannel);
+            };
+            await this.peerConnection.setRemoteDescription(remoteDesc);
+            const answer = await this.peerConnection.createAnswer();
+            await this.peerConnection.setLocalDescription(answer);
+            await this.waitForICEGathering();
+            alert('Copy answer data and send it to host');
+            this.elements.peerConnectionData.value = JSON.stringify(this.peerConnection.localDescription);
+            console.log(JSON.stringify(this.peerConnection.localDescription));
+        } catch(err){console.error(err); this.addSystemMessage('Error connecting'); this.updateStatus('disconnected','Failed');}
+    }
+
+    setupPeerConnectionEvents() {
+        this.peerConnection.onconnectionstatechange = () => {
+            const state = this.peerConnection.connectionState;
+            if(state==='connected') this.onConnectionEstablished();
+            if(state==='disconnected'||state==='failed'||state==='closed') this.onConnectionLost();
+        };
+    }
+
+    setupDataChannelEvents(channel){
+        channel.onopen=()=>this.onConnectionEstablished();
+        channel.onclose=()=>this.onConnectionLost();
+        channel.onmessage=(e)=>this.addMessage(e.data,'peer');
+        channel.onerror=(e)=>console.error('DataChannel error',e);
+    }
+
+    waitForICEGathering(){return new Promise(resolve=>{
+        if(this.peerConnection.iceGatheringState==='complete'){resolve(); return;}
+        const check=()=>{if(this.peerConnection.iceGatheringState==='complete'){this.peerConnection.removeEventListener('icegatheringstatechange',check);resolve();}};
+        this.peerConnection.addEventListener('icegatheringstatechange',check);
+        setTimeout(resolve,5000);
+    });}
+
+    onConnectionEstablished(){
+        this.isConnected=true;
+        this.updateStatus('connected','Connected');
+        this.elements.connectionSetup.style.display='none';
+        this.elements.chatContainer.classList.add('active');
+        this.addSystemMessage('Connected! You can now chat.');
+        this.elements.messageInput.focus();
+    }
+
+    onConnectionLost(){
+        this.isConnected=false;
+        this.updateStatus('disconnected','Disconnected');
+        this.elements.sendBtn.disabled=true;
+        this.addSystemMessage('Connection lost.');
+    }
+
+    updateStatus(status,text){
+        this.elements.statusText.textContent=text;
+        this.elements.statusDot.className='status-dot';
+        if(status==='connected') this.elements.statusDot.classList.add('connected');
+    }
+
+    copyConnectionData(){
+        this.elements.connectionData.select();
+        document.execCommand('copy');
+        const t=this.elements.copyBtn.textContent;
+        this.elements.copyBtn.textContent='✅ Copied!';
+        this.elements.copyBtn.style.background='#00b894';
+        setTimeout(()=>{this.elements.copyBtn.textContent=t; this.elements.copyBtn.style.background='#2ed573';},2000);
+    }
+
+    sendMessage(){
+        const m=this.elements.messageInput.value.trim();
+        if(!m||!this.isConnected||!this.dataChannel) return;
+        try{this.dataChannel.send(m); this.addMessage(m,'me'); this.elements.messageInput.value=''; this.elements.sendBtn.disabled=true;}
+        catch(err){console.error(err); this.addSystemMessage('Failed to send message');}
+    }
+
+    addMessage(text,sender){
+        const msg=document.createElement('div'); msg.className='message '+sender;
+        const bubble=document.createElement('div'); bubble.className='message-bubble'; bubble.textContent=text;
+        const time=document.createElement('div'); time.className='message-time'; time.textContent=new Date().toLocaleTimeString();
+        msg.appendChild(bubble); msg.appendChild(time);
+        this.elements.messages.appendChild(msg);
+        this.elements.messages.scrollTop=this.elements.messages.scrollHeight;
+    }
+
+    addSystemMessage(text){this.addMessage(text,'system');}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{new P2PChat();});
+</script>
 </body>
 </html>

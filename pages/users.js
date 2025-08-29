@@ -1,4 +1,4 @@
-import { getList } from '../js/loader.js';
+import { getList , openPage } from '../js/loader.js';
 
 export async function renderPage(containerId = "content") {
     console.log("Rendering Users Page");
@@ -6,6 +6,7 @@ export async function renderPage(containerId = "content") {
     container.innerHTML = `
         <div class="container mt-5">
             <h1 class="mb-4">User List</h1>
+            <div id="buttonContainer"></div>   
             <table class="table table-striped" id="userTable">
                 <thead>
                     <tr>
@@ -19,6 +20,14 @@ export async function renderPage(containerId = "content") {
         </div>
     `;
 
+    var addButton = document.createElement("button");
+    addButton.textContent = "Add User";
+    addButton.onclick = () => {
+       openPage('/addUser.js');
+    }
+    debugger;
+    container.querySelector('#buttonContainer').appendChild(addButton);
+    
     try {
         let users = getList('users');
 
@@ -39,4 +48,6 @@ export async function renderPage(containerId = "content") {
         console.error("Failed to load users:", e);
         container.innerHTML += `<p class="text-danger">Error loading users</p>`;
     }
+    
 }
+

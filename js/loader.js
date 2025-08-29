@@ -1,6 +1,14 @@
 let moduleCache = new Map();
     
 export function initApp() {
+    navigator.serviceWorker.register('sw.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch(error => {
+        console.log('Service Worker registration failed:', error);
+      });
+      
     var pages = getList('pages');
 
     var tabContainer = document.getElementById('tabs');
@@ -9,19 +17,31 @@ export function initApp() {
         tab.className = 'tab';
         tab.textContent = page.title;
         tab.onclick = async () => { 
-             try {
                 console.log(`Loading page: ${page.title} from ${page.path}`,page);
-                let module = await import('../pages'+page.path);
-                module.renderPage("content");
-            } catch (e) {
-                console.error(e);
-                content.innerHTML = `<h3>${page.title}</h3><p>Error loading page.</p>`;
-            }
+                openPage(page.path);
+            
         }
         tabContainer.appendChild(tab);
 
     });
 }
+export function openPage(pagePath) {
+    try {
+        console.log(`Opening page from ${pagePath}`);
+        import('../pages'+pagePath)
+            .then(module => {
+                module.renderPage("content");
+            })
+            .catch(e => {
+                console.error(e);
+                content.innerHTML = `<h3>Error</h3><p>Error loading page.</p>`;
+            });
+    } catch (e) {
+        console.error(e);
+        content.innerHTML = `<h3>Error</h3><p>Error loading page.</p>`;
+    }
+}
+
 
 export function getList( type , defaultReturn = []) {
         

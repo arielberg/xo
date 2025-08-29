@@ -5,37 +5,22 @@ const express = require('express');
 
 const app = express();
 
+// HTTPS options
 const options = {
-  key: fs.readFileSync('/workspace/xo/localScripts/localhost-key.pem'),
-  cert: fs.readFileSync('/workspace/xo/localScripts/localhost-cert.pem')
+  key: fs.readFileSync('/workspace/xo/devScripts/server.key'),
+  cert: fs.readFileSync('/workspace/xo/devScripts/server.crt')
 };
 
-// Serve wpa.html for root
-app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, '..', 'wpa.html');
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.status(500).send('Error loading file');
-    } else {
-      res.setHeader('Content-Type', 'text/html');
-      res.send(data);
-    }
-  });
+// Serve all static files from the parent directory
+const publicDir = path.join(__dirname, '..');
+app.use(express.static(publicDir));
+
+// Optional: fallback for 404
+app.use((req, res) => {
+  res.status(404).send('File not found');
 });
 
-// Optional: serve index.html if requested
-app.get('/index.html', (req, res) => {
-  const filePath = path.join(__dirname, '..', 'wpa.html');
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.status(500).send('Error loading file');
-    } else {
-      res.setHeader('Content-Type', 'text/html');
-      res.send(data);
-    }
-  });
-});
-
+// Start HTTPS server
 https.createServer(options, app).listen(8443, () => {
-  console.log('HTTPS server running on https://localhost:8443');
+  console.log('HTTPS server running on port 8443');
 });

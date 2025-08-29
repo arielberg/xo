@@ -1,7 +1,4 @@
-// Hello World PWA Service Worker
-// Version 1.0
-
-const CACHE_NAME = 'hello-world-pwa-v1';
+const CACHE_NAME = 'web3-pwa-v1';
 const CACHE_VERSION = '1.0';
 
 // Files to cache for offline functionality
@@ -9,6 +6,11 @@ const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
+  './data/pages.json',
+  './data/settings.json',
+   './data/users.json',
+   './pages/users.js',
+   './css/style.css',
   // Add other static assets here as needed
   // './styles.css',
   // './script.js',
@@ -41,7 +43,7 @@ self.addEventListener('install', event => {
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
   console.log('[SW] Activating Service Worker version', CACHE_VERSION);
-  
+  self.clients.claim();
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -63,6 +65,9 @@ self.addEventListener('activate', event => {
 
 // Fetch event - serve cached content when offline
 self.addEventListener('fetch', event => {
+
+  console.log('[SW] fetch event:', event);
+
   // Only handle GET requests
   if (event.request.method !== 'GET') {
     return;
@@ -86,6 +91,8 @@ self.addEventListener('fetch', event => {
         console.log('[SW] Fetching from network:', event.request.url);
         return fetch(event.request)
           .then(response => {
+           
+            console.log('[SW] responsek:', response);
             // Don't cache if not a valid response
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;

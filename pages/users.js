@@ -7,16 +7,7 @@ export async function renderPage(containerId = "content") {
         <div class="container mt-5">
             <h1 class="mb-4">User List</h1>
             <div id="buttonContainer"></div>   
-            <table class="table table-striped" id="userTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div id="userTable"> </div>
         </div>
     `;
 
@@ -25,24 +16,23 @@ export async function renderPage(containerId = "content") {
     addButton.onclick = () => {
        openPage('/addUser.js');
     }
-    debugger;
     container.querySelector('#buttonContainer').appendChild(addButton);
     
     try {
         let users = getList('users');
 
-        let tbody = container.querySelector("#userTable tbody");
+        let tbody = container.querySelector("#userTable");
         tbody.innerHTML = "";
 
         users.forEach(user => {
             console.log("Adding user:", user);
-            let tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${user.id}</td>
-                <td>${user.name}</td>
-                <td>${user.email}</td>
-            `;
-            tbody.appendChild(tr);
+            let div = document.createElement("div");
+            div.style='padding: 8px; border-bottom: 1px solid #ccc;';
+            div.innerHTML = `${user.username}`;
+            div.onclick = () => {
+                openPage(`/userPage.js`,{user:user});
+            }
+            tbody.appendChild(div);
         });
     } catch (e) {
         console.error("Failed to load users:", e);

@@ -1,4 +1,4 @@
-import { getList , openPage } from '../js/loader.js';
+import { getList , runScript } from '../js/loader.js';
 
 export async function renderPage(containerId = "content") {
     console.log("Rendering Users Page");
@@ -14,7 +14,7 @@ export async function renderPage(containerId = "content") {
     var addButton = document.createElement("button");
     addButton.textContent = "Add User";
     addButton.onclick = () => {
-       openPage('/addUser.js');
+       runScript('/addUser.js');
     }
     container.querySelector('#buttonContainer').appendChild(addButton);
     
@@ -30,7 +30,7 @@ export async function renderPage(containerId = "content") {
             div.style='padding: 8px; border-bottom: 1px solid #ccc;';
             div.innerHTML = `${user.username}`;
             div.onclick = () => {
-                openPage(`/userPage.js`,{user:user});
+                runScript(`/userPage.js`,{user:user});
             }
             tbody.appendChild(div);
         });

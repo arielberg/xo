@@ -1,4 +1,4 @@
-import { getList , openPage, appendToList } from '../js/loader.js';
+import { getList , runScript, appendToList } from '../js/loader.js';
 
 export async function renderPage(containerId = "content") {
     console.log("Rendering Users Page");
@@ -25,6 +25,6 @@ export async function renderPage(containerId = "content") {
             password: document.getElementById('pass').value 
         }
         appendToList('users', user);
-        openPage('/users.js');  
+        runScript('/users.js');  
     }
 }

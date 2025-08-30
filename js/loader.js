@@ -19,14 +19,14 @@ export function initApp() {
         tab.textContent = page.title;
         tab.onclick = async () => { 
                 console.log(`Loading page: ${page.title} from ${page.path}`,page);
-                openPage(page.path);
+                runScript(page.path);
             
         }
         tabContainer.appendChild(tab);
 
     });
 }
-export function openPage(pagePath, params) {
+export function runScript(pagePath, params) {
     try {
         console.log(`Opening page from ${pagePath}`);
         import('../pages'+pagePath)

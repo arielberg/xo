@@ -1,10 +1,9 @@
 import { getList , runScript, appendToList } from '../js/loader.js';
-import { encrypt, decrypt } from '../js/AES_GCM.js';
+import createCA from '../wasm/ssl/ca.js';
 
 export async function renderPage(containerId = "content", params) {
-  
-    const c = await encrypt('hello', params.user.password);
-    const p = await decrypt(c, params.user.password); // 'hello'
-    console.log(c,p);
+    const caModule = await createCA();
+    const { certPem, keyPem } = caModule.generate_ca(3650);
+    console.log(certPem, keyPem);
     
 }

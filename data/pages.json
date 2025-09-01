@@ -1,5 +1,7 @@
 [
     {"path": "/users.js","title":"Users","icon":"settings"},
     {"path": "/apps.js","title":"Apps","icon":"settings"},
+    {"path": "/whatsappInvits.js","title":"Invite","icon":"whatsapp"},
     {"path": "/settings.js","title":"Settings","icon":"settings"}
+    
 ]

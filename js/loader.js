@@ -23,15 +23,18 @@ export function initApp() {
             
         }
         tabContainer.appendChild(tab);
-
     });
+    var mycertficates = getList('certificates', [], true );
+    if( mycertficates.length === 0 ) {
+        runScript('/createCertificate.js' );
+    }
 }
 export function runScript(pagePath, params) {
     try {
         console.log(`Opening page from ${pagePath}`);
         import('../pages'+pagePath)
             .then(module => {
-                module.renderPage("content", params );
+                module.run("content", params );
             })
             .catch(e => {
                 console.error(e);
@@ -44,7 +47,7 @@ export function runScript(pagePath, params) {
 }
 
 
-export function getList(type, defaultReturn = []) {
+export function getList(type, defaultReturn = [], skipLoadingJson = false) {
     // 1. check cache
     if (moduleCache.has(type)) {
         console.log(`Loaded ${type} from moduleCache`);
@@ -65,24 +68,26 @@ export function getList(type, defaultReturn = []) {
     }
 
     // 3. check file
-    try {
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", `data/${type}.json`, false); // סינכרוני – רק לשימוש פשוט
-        xhr.send(null);
+    if ( !skipLoadingJson ) {
+        try {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", `data/${type}.json`, false); // סינכרוני – רק לשימוש פשוט
+            xhr.send(null);
 
-        if (xhr.status === 200) {
-            let jsonData = JSON.parse(xhr.responseText);
-            localStorage.setItem(type, JSON.stringify(jsonData));
-            moduleCache.set(type, jsonData);
-            console.log(`Loaded ${type} from file data/${type}.json`);
-            return jsonData;
-        } else {
-            console.error(`Failed loading data/${type}.json (status ${xhr.status})`);
+            if (xhr.status === 200) {
+                let jsonData = JSON.parse(xhr.responseText);
+                localStorage.setItem(type, JSON.stringify(jsonData));
+                moduleCache.set(type, jsonData);
+                console.log(`Loaded ${type} from file data/${type}.json`);
+                return jsonData;
+            } else {
+                console.error(`Failed loading data/${type}.json (status ${xhr.status})`);
+            }
+        } catch (err) {
+            console.error(`Error loading data/${type}.json`, err);
         }
-    } catch (err) {
-        console.error(`Error loading data/${type}.json`, err);
     }
-
+    
     // 4. default
     console.log(`Using default return for ${type}`);
     moduleCache.set(type, defaultReturn);

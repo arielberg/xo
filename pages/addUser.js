@@ -1,6 +1,6 @@
 import { getList , runScript, appendToList } from '../js/loader.js';
 
-export async function renderPage(containerId = "content") {
+export async function run(containerId = "content") {
     console.log("Rendering Users Page");
     const container = document.getElementById(containerId);
     container.innerHTML = `

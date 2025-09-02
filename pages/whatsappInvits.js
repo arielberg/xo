@@ -67,6 +67,6 @@ export async function run(containerId = 'content') {
   back.addEventListener('click', () => {
     // Navigate elsewhere in your app if you have a page to return to
     // Adjust the path to your landing page module as needed
-    try { runScript('/home.js'); } catch (e) { console.warn('No home.js route configured'); }
+    try { runScript('/pages/home.js'); } catch (e) { console.warn('No home.js route configured'); }
   });
 }

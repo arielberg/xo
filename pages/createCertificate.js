@@ -2,7 +2,7 @@ import { getList , runScript, appendToList } from '../js/loader.js';
 import createCA from '../wasm/ssl/ca.js';
 
 
-export async function run(containerId = "content") {
+export async function run(containerId = "content", queryParams = {}) {
     const container = document.getElementById(containerId);
     container.innerHTML = `
     <div class="container mt-5">
@@ -28,8 +28,12 @@ export async function run(containerId = "content") {
         const { certPem, keyPem } = caModule.generate_ca(3650,certInfo );
         console.log(certPem, keyPem);
         appendToList('certificates', {cert:certPem, key:keyPem, active:true, username:username } );
-        
-        runScript('/settings.js');
+        if( queryParams.has('offer') ) {
+            runScript('/pages/offerAnswer.js');
+        }
+        else {
+            runScript('/pages/settings.js');
+        }
     }
 
     container.querySelector('#buttonContainer').appendChild(addButton);

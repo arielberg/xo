@@ -165,6 +165,6 @@ export async function run(containerId = 'content') {
   };
 
   container.querySelector('#btnAdd').onclick = async () => {
-    await runScript?.('/createCertificate.js');
+    await runScript?.('/pages/createCertificate.js');
   };
 }

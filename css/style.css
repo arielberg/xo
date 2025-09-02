@@ -1,50 +1,156 @@
-#header {
-    background-color: blue;
-    color: white;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    padding: 10px;
-    height: 40px;
+/* ============ Modern Minimal (auto light/dark) ============ */
+* { box-sizing: border-box; }
+:root{
+  --bg: #f7f7fa;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #6b7280;
+  --accent: #3b82f6;
+  --accent-600:#2563eb;
+  --border: #e5e7eb;
+  --radius: 14px;
+  --header-h: 64px;
+  --footer-h: 56px;
+  --shadow: 0 10px 30px rgba(2, 6, 23, .06);
+  --glass: blur(10px) saturate(120%);
 }
-#header .tab {
-    display: inline-block;
-    margin-right: 20px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 40px;
-}
-#bars {
-    float: left;
-    margin-right: 17px;
-}
-#content {
-    margin-top: 100px;
-    max-height: calc( 100vh - 160px);
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg: #0b1220;
+    --surface:#0f172a;
+    --text:#e5e7eb;
+    --muted:#94a3b8;
+    --accent:#60a5fa;
+    --accent-600:#3b82f6;
+    --border:#1f2937;
+    --shadow: 0 12px 32px rgba(0,0,0,.35);
+  }
 }
 
-#footer {
-    background-color: blue;
-    color: white;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100vw;
-    padding: 10px;
+html, body { height: 100%; }
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.15), transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, rgba(168,85,247,.10), transparent 60%),
+    var(--bg);
+  font: 15px/1.5 ui-sans-serif, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  letter-spacing:.1px;
+  padding: var(--header-h) 0 var(--footer-h);
 }
-input[type="text"] {
-    width: 300px;
-    height: 30px;
-    font-size: 16px;
-    padding: 5px 10px;
-    padding: 5px;
-    margin-right: 10px;
+
+/* App container */
+#app{ min-height:100%; }
+
+/* ======= Header (glass + tabs pills) ======= */
+#header{
+  position: fixed; inset: 0 0 auto 0; height: var(--header-h);
+  display:flex; align-items:center; gap:12px; padding:0 16px;
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
 }
-button {
-    height: 42px;
-    font-size: 16px;
-    padding: 5px 10px;
-    cursor: pointer;
+
+#bars{ flex:0 0 auto; margin-right:4px; cursor:pointer; opacity:.8; transition:transform .15s ease, opacity .15s ease; }
+#bars:hover{ transform: scale(1.06); opacity:1; }
+
+/* Tabs: pill + underline indicator */
+#tabs{ display:flex; align-items:center; gap:8px; overflow:auto hidden; scrollbar-width: thin; }
+#tabs::-webkit-scrollbar{ height:6px; }
+#tabs::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.15); border-radius:8px; }
+
+#header .tab{
+  position: relative;
+  flex:0 0 auto;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+  border:1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  cursor:pointer;
+  transition: color .15s ease, background .15s ease, border-color .15s ease, transform .05s ease;
+}
+#header .tab:hover{ color: var(--text); border-color: color-mix(in oklab, var(--border) 50%, var(--accent) 20%); }
+#header .tab:active{ transform: translateY(1px); }
+#header .tab.active{
+  color: color-mix(in oklab, var(--text) 90%, var(--accent) 20%);
+  border-color: color-mix(in oklab, var(--accent) 60%, var(--border) 20%);
+  background: color-mix(in oklab, var(--surface) 70%, var(--accent) 10%);
+}
+#header .tab.active::after{
+  content:""; position:absolute; left:12px; right:12px; bottom:-9px; height:3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-600));
+  border-radius: 6px;
+}
+
+/* ======= Content card ======= */
+#content{
+  margin: 18px auto;
+  padding: 20px;
+  width: min(1100px, 92vw);
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  max-height: calc(100vh - (var(--header-h) + var(--footer-h) + 56px));
+  overflow: auto;
+}
+
+/* ======= Footer (tool bar) ======= */
+#footer{
+  position: fixed; inset: auto 0 0 0; height: var(--footer-h);
+  display:flex; align-items:center; justify-content:center; gap:12px; padding:0 16px;
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
+  border-top: 1px solid var(--border);
+  z-index: 1000;
+}
+
+/* ======= Inputs & Buttons ======= */
+input[type="text"]{
+  width: min(420px, 86vw); height: 42px;
+  font-size: 15px; color: var(--text);
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 12px; outline:none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input[type="text"]::placeholder{ color: color-mix(in oklab, var(--muted) 80%, transparent); }
+input[type="text"]:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 30%, transparent);
+}
+
+button{
+  height: 42px; padding: 0 16px;
+  font-size: 15px; font-weight: 700; letter-spacing:.2px;
+  color: #fff; background: linear-gradient(180deg, var(--accent), var(--accent-600));
+  border: 0; border-radius: 12px; cursor:pointer;
+  box-shadow: var(--shadow);
+  transition: transform .05s ease, filter .15s ease;
+}
+button:hover{ filter: brightness(1.05); }
+button:active{ transform: translateY(1px); }
+
+/* Text utilities */
+.hint{ color: var(--muted); font-size: 13px; }
+
+/* ======= Mobile ======= */
+@media (max-width: 640px){
+  :root{ --header-h: 60px; --footer-h: 56px; }
+  #header{ padding: 0 12px; }
+  #header .tab{ padding: 8px 12px; font-size: 13px; }
+  #content{ padding: 14px; margin: 12px auto; }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important; }
 }

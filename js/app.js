@@ -19,7 +19,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('run', (command, state) {
-    console.log('aaa');
+   
     if (typeof command === 'string') {
         // Check if we should load command from localStorage
         if (localStorage.getItem(state) === state) {

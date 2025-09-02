@@ -11,7 +11,7 @@ export function initApp() {
       });
       */
     var pages = getList('pages');
-
+    let queryParams = new URLSearchParams(window.location.search);
     var tabContainer = document.getElementById('tabs');
     pages.forEach(page => {
         var tab = document.createElement('div');
@@ -26,13 +26,16 @@ export function initApp() {
     });
     var mycertficates = getList('certificates', [], true );
     if( mycertficates.length === 0 ) {
-        runScript('/createCertificate.js' );
+        runScript('/pages/createCertificate.js', queryParams );
     }
 }
+
+
+
 export function runScript(pagePath, params) {
     try {
         console.log(`Opening page from ${pagePath}`);
-        import('../pages'+pagePath)
+        import('..'+pagePath)
             .then(module => {
                 module.run("content", params );
             })

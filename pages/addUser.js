@@ -11,9 +11,6 @@ export async function run(containerId = "content") {
                 <div style="margin-bottom: 10px;">
                     <input id="userName" type="text" placeholder="Name" />
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <input id="pass" type="text" placeholder="Sevcret" />
-                </div>
                 <button class="addButton">Add</button>
             </table>
         </div>
@@ -21,10 +18,9 @@ export async function run(containerId = "content") {
     container.querySelector('.addButton').onclick = () => {
        
         var user = {
-            username: document.getElementById('userName').value,
-            password: document.getElementById('pass').value 
+            username: document.getElementById('userName').value
         }
         appendToList('users', user);
-        runScript('/users.js');  
+        runScript('/pages/users.js');  
     }
 }

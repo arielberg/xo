@@ -16,9 +16,12 @@ export async function run(containerId = "content") {
         </div>
     `;
     container.querySelector('.addButton').onclick = () => {
-       
+        var certInfo = getList('certificates').find( c => c.active );
+        if( !certInfo ) {
+            certInfo = getList('certificates').find( c => true );
+        }
         var user = {
-            username: document.getElementById('userName').value
+            username: certInfo.username
         }
         appendToList('users', user);
         runScript('/pages/users.js');  

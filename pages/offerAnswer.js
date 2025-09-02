@@ -2,6 +2,7 @@
 // Uses shared encoders from ../js/utils.js
 
 import { b64urlEncode, b64urlDecode } from '../js/utils.js';
+import { getList , runScript, appendToList } from '../js/loader.js';
 
 async function waitIceComplete(pc) {
   if (pc.iceGatheringState === 'complete') return;
@@ -83,14 +84,27 @@ export async function run(containerId = 'content', queryParams = null) {
 
     // If caller created a DataChannel
     pc.ondatachannel = (ev) => {
-      dc = ev.channel;
-      dc.onopen = () => log('[dc] open');
+      const dc = ev.channel;
+
+      // אם יש API פנימי: שמירה וטריגר למאזינים
+      try { setDataChannel?.(dc); onPeerEvents?.({ ondc: () => {} }); } catch {}
+    
+      dc.onopen = () => {
+        log('[dc] open');
+        console.log(dc);
+        //runScript('/apps/chat.js');
+      };
       dc.onmessage = (e) => log('[dc] msg:', String(e.data).slice(0, 200));
       dc.onclose = () => log('[dc] close');
     };
     pc.oniceconnectionstatechange = () => log('[pc] ice:', pc.iceConnectionState);
+    
+    var user = {
+      username: offerObj.username
+    }
+    appendToList('users', user);
 
-    await pc.setRemoteDescription(offerObj);
+    await pc.setRemoteDescription(offerObj.offer);
     log('Remote description set. Creating answer...');
 
     const answer = await pc.createAnswer();

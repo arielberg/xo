@@ -103,30 +103,65 @@ export async function run(containerId = 'content') {
   const container = document.getElementById(containerId);
   container.innerHTML = `
     <div class="container mt-5">
-      <h1 class="mb-4">Settings</h1>
+    <style>
+        .i-btn, .sep { cursor:pointer; color:#ddd; }
+        .i-btn:hover { color:#1e40af; }
+        .i-btn.active, .i-btn.active:hover {color:#000;background: #ddd;padding: 7px 10px;border-radius: 12px;}
+    </style>  
+    <h1 class="mb-4">Settings</h1>
 
       <div class="card" style="padding:16px; margin-bottom:12px;">
         <h3>Certificates</h3>
         <div id="certListWrapper"></div>
+        
+        <div class="card" style="padding:16px;">        
+            <button id="btnAdd">Add New Certificate</button>
+        </div>
       </div>
 
       <div class="card" style="padding:16px; margin-bottom:12px;">
-        <h3>Export / Import</h3>
-        <button id="btnExport">Download JSON</button>
-        <input id="fileInput" type="file" accept="application/json" style="margin-left:8px" />
-        <label style="margin-left:8px;">
-          <input id="overwrite" type="checkbox" /> Overwrite duplicates
-        </label>
-        <button id="btnImport" style="margin-left:8px;">Import</button>
+        <h3>
+            <span class='i-btn' data-action='export'>Export</span>
+            <span class='sep'>/</span> 
+            <span class='i-btn' data-action='import'>Import<span></h3>
+        <div id='export_form' style='display:none'>
+            <button id="btnExport">Download JSON</button>
+        </div>
+        <div id='import_form' style='display:none'>
+            <input id="fileInput" type="file" accept="application/json" style="margin-left:8px" />
+            <label style="margin-left:8px;display:block;">
+                <input id="overwrite" type="checkbox" /> Overwrite duplicates
+            </label>
+            <button id="btnImport" style="margin-left:8px;">Import</button>
+        </div>
         <span id="importMsg" style="margin-left:8px; opacity:.7;"></span>
       </div>
-
-      <div class="card" style="padding:16px;">
-        <h3>Add New Certificate</h3>
-        <button id="btnAdd">Create Certificate</button>
-      </div>
+      
     </div>
   `;
+
+  const exportForm = container.querySelector('#export_form');
+  const importForm = container.querySelector('#import_form');
+
+  container.querySelectorAll('.i-btn').forEach(el => {
+    
+    const toggle = () => {
+      const action = el.dataset.action;
+      container.querySelectorAll('.i-btn').forEach(el => {
+        el.classList.remove('active');
+      });
+      el.classList.add('active');
+      exportForm.style.display = 'none';
+      importForm.style.display = 'none';
+
+      if (action === 'export') {
+        exportForm.style.display = 'block';
+      } else if (action === 'import') {
+        importForm.style.display = 'block';
+      }
+    };
+    el.addEventListener('click', toggle);
+  });
 
   let list = loadCerts();
   renderList(container, list);

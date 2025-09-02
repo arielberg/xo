@@ -1,6 +1,6 @@
 import { getList , runScript } from '../js/loader.js';
-import { createOffer } from '../js/WebRtc.js';
-import { b64urlDecode, b64urlEncode } from '../js/utils.js';
+import { createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
+import { b64urlEncode, b64urlDecode } from '../js/utils.js';
 
 export async function run(containerId = "content") {
   const container = document.getElementById(containerId);
@@ -10,13 +10,13 @@ export async function run(containerId = "content") {
         .page-actions { display:flex; justify-content:flex-end; margin-bottom:16px; }
         .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border:1px solid #222; border-radius:10px; cursor:pointer; text-decoration:none; }
         .btn.primary { background:#111; color:#fff; }
-        .btn.ghost { background:#fff; color:#111; }
         .list { display:grid; gap:12px; }
-        .card { border:1px solid #e5e7eb; border-radius:14px; padding:14px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+        .card { border:1px solid #e5e7eb; border-radius:14px; padding:14px; display:flex; flex-wrap:wrap; align-items:flex-start; gap:12px; }
         .username { min-width:180px; border:0; border-bottom:1px dashed #bbb; padding:4px 2px; background:transparent; }
-        .linkwrap { flex:1; min-width:260px; display:flex; gap:8px; align-items:center; }
-        .linkwrap input { flex:1; padding:8px; border:1px solid #ddd; border-radius:10px; background:#fafafa; }
         .muted { color:#6b7280; font-size:12px; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+        .pill { font-size:12px; border:1px solid #ddd; border-radius:999px; padding:2px 8px; }
+        .full { width:100%; }
       </style>
 
       <h1 class="mb-3">User List</h1>
@@ -39,81 +39,144 @@ export async function run(containerId = "content") {
       const row = document.createElement("div");
       row.className = "card";
 
-      // שם משתמש (עריך-במקום)
       const nameInput = document.createElement("input");
       nameInput.className = "username";
       nameInput.value = user.username ?? "";
       nameInput.title = "Click to edit";
       row.appendChild(nameInput);
 
-      // אזור לינק + כפתורים
-      const linkWrap = document.createElement("div");
-      linkWrap.className = "linkwrap";
+      const statusPill = document.createElement('span');
+      statusPill.className = 'pill muted';
+      statusPill.textContent = 'idle';
+      row.appendChild(statusPill);
 
-      const linkInput = document.createElement("input");
-      linkInput.readOnly = true;
-      linkInput.placeholder = "Invitation link will appear here...";
-      linkWrap.appendChild(linkInput);
+      // Single action button: generate & copy invite link
+      const inviteBtn = document.createElement("button");
+      inviteBtn.className = "btn";
+      inviteBtn.textContent = "Invite (Copy link)";
+      row.appendChild(inviteBtn);
 
-      const genBtn = document.createElement("button");
-      genBtn.className = "btn ghost";
-      genBtn.textContent = "Generate";
-      linkWrap.appendChild(genBtn);
+      // Link area (hidden after copy)
+      const linkArea = document.createElement('input');
+      linkArea.className = 'mono full';
+      linkArea.readOnly = true;
+      linkArea.placeholder = 'Invitation link will appear here...';
+      linkArea.style.display = 'none';
+      row.appendChild(linkArea);
 
-      const copyBtn = document.createElement("button");
-      copyBtn.className = "btn ghost";
-      copyBtn.textContent = "Copy";
-      copyBtn.disabled = true; // עד שיש לינק
-      linkWrap.appendChild(copyBtn);
+      // Answer area and process button (appear after copying)
+      const answerArea = document.createElement('textarea');
+      answerArea.className = 'mono full';
+      answerArea.rows = 6;
+      answerArea.placeholder = 'Paste the base64url answer here...';
+      answerArea.style.display = 'none';
+      row.appendChild(answerArea);
 
-      row.appendChild(linkWrap);
+      const processBtn = document.createElement('button');
+      processBtn.className = 'btn';
+      processBtn.textContent = 'Process Answer';
+      processBtn.style.display = 'none';
+      row.appendChild(processBtn);
 
-      const hint = document.createElement("div");
-      hint.className = "muted";
-      hint.textContent = "Generates a WebRTC offer and builds a shareable link (?offer=...)";
-      row.appendChild(hint);
+      const logBox = document.createElement('textarea');
+      logBox.className = 'mono full';
+      logBox.rows = 6;
+      logBox.readOnly = true;
+      logBox.style.display = 'none';
+      logBox.placeholder = 'Connection logs will appear here...';
+      row.appendChild(logBox);
 
-      // לוגיקה: יצירת לינק
-      genBtn.onclick = async () => {
-        genBtn.disabled = true;
-        genBtn.textContent = "Generating...";
+      const statusText = document.createElement('div');
+      statusText.className = 'muted full';
+      row.appendChild(statusText);
+
+      const log = (...args) => {
+        logBox.style.display='block';
+        const line = args.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ');
+        logBox.value += (logBox.value?'\n':'') + line;
+        logBox.scrollTop = logBox.scrollHeight;
+      };
+
+      const bindPeerDebug = () => {
         try {
-          // תומך בשתי הגרסאות: או שמחזיר RTCSessionDescriptionInit, או אובייקט עם fullOffer
+          onPeerEvents?.({
+            onice: (state) => { log('[pc] ice:', state); statusPill.textContent = state; },
+            onconn: (state) => { 
+                log('[pc] conn:', state); 
+                if (state === 'connected') {
+                  //  runScript('/apps/chat.js');
+                }
+            },
+            ondc: (dc) => {
+              log('[dc] opened:', dc.label);
+              dc.onmessage = (e) => log('[dc] msg:', String(e.data).slice(0,200));
+              dc.onclose = () => log('[dc] close');
+            }
+          });
+        } catch {}
+      };
+
+      inviteBtn.onclick = async () => {
+        try {
+          inviteBtn.disabled = true;
+          statusPill.textContent = 'creating offer...';
+          statusText.textContent = '';
+
           const offerRes = await createOffer();
           const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
-          const encoded = b64urlEncode(JSON.stringify(offerObj));
+          
+          var offerWrap = {
+            offer:offerObj,
+            username: nameInput.value.trim() || ''
+          };
+
+          const encoded = b64urlEncode(JSON.stringify(offerWrap));
+
+          bindPeerDebug();
+
           const link = `${location.origin}${location.pathname}?offer=${encoded}`;
-          linkInput.value = link;
-          copyBtn.disabled = false;
+          linkArea.value = link;
+          linkArea.style.display = '';
+
+          // Copy immediately
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(link);
+          } else {
+            linkArea.select();
+            document.execCommand('copy');
+          }
+
+          inviteBtn.style.display = 'none';
+          statusPill.textContent = 'link copied — waiting for answer';
+          statusText.textContent = 'Share the link. When you receive the base64url answer, paste it below and click Process.';
+          answerArea.style.display = '';
+          processBtn.style.display = 'inline-flex';
         } catch (e) {
-          console.error("Failed to generate offer:", e);
-          linkInput.value = "Error generating offer";
-          copyBtn.disabled = true;
-        } finally {
-          genBtn.disabled = false;
-          genBtn.textContent = "Generate";
+          console.error('Failed to generate/copy invite link:', e);
+          statusPill.textContent = 'error';
+          statusText.textContent = e?.message || 'Error generating link';
+          inviteBtn.disabled = false;
         }
       };
 
-      // לוגיקה: העתקה ללוח
-      copyBtn.onclick = async () => {
-        const text = linkInput.value.trim();
-        if (!text) return;
+      processBtn.onclick = async () => {
         try {
-          if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(text);
-          } else {
-            // נפילה: סימון והעתקה ידנית
-            linkInput.select();
-            document.execCommand('copy');
-          }
-          const prev = copyBtn.textContent;
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => (copyBtn.textContent = prev), 900);
+          const encodedAnswer = (answerArea.value || '').trim();
+          if (!encodedAnswer) { statusText.textContent = 'No answer pasted.'; return; }
+          statusText.textContent = 'Applying answer...';
+
+          const answerJson = b64urlDecode(encodedAnswer);
+          await acceptAnswer(answerJson); // expects JSON string of RTCSessionDescriptionInit
+
+          bindPeerDebug(); // rebind in case pc was recreated internally
+
+          statusText.textContent = 'Answer applied. Waiting for connection...';
+          log('[ok] answer applied');
+          processBtn.disabled = true;
         } catch (e) {
-          console.warn("Clipboard not available, showing selection for manual copy.");
-          linkInput.focus();
-          linkInput.select();
+          console.error('Failed to apply answer:', e);
+          statusText.textContent = 'Error applying answer';
+          log('[err]', e?.message || e);
         }
       };
 

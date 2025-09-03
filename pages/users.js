@@ -1,6 +1,6 @@
 import { getList , runScript } from '../js/loader.js';
-import { createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
-import { b64urlEncode, b64urlDecode } from '../js/utils.js';
+import { bindDataChannel, createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
+import { b64urlEncode, b64urlDecode, getCurrentCertificate } from '../js/utils.js';
 
 export async function run(containerId = "content") {
   const container = document.getElementById(containerId);
@@ -35,7 +35,12 @@ export async function run(containerId = "content") {
     const list = container.querySelector("#userTable");
     list.innerHTML = "";
 
+    
     users.forEach(user => {
+      if ( user.offer ) {
+        console.log("user.offer:", user.offer);
+       // pc.setRemoteDescription(offerObj.offer);
+      }
       const row = document.createElement("div");
       row.className = "card";
 
@@ -99,19 +104,16 @@ export async function run(containerId = "content") {
 
       const bindPeerDebug = () => {
         try {
+          console.log('aaaaa');
           onPeerEvents?.({
             onice: (state) => { log('[pc] ice:', state); statusPill.textContent = state; },
             onconn: (state) => { 
-                log('[pc] conn:', state); 
+               
                 if (state === 'connected') {
                   //  runScript('/apps/chat.js');
                 }
             },
-            ondc: (dc) => {
-              log('[dc] opened:', dc.label);
-              dc.onmessage = (e) => log('[dc] msg:', String(e.data).slice(0,200));
-              dc.onclose = () => log('[dc] close');
-            }
+            ondc: bindDataChannel
           });
         } catch {}
       };
@@ -125,9 +127,12 @@ export async function run(containerId = "content") {
           const offerRes = await createOffer();
           const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
           
+          var currentCertificate = getCurrentCertificate();
+
           var offerWrap = {
             offer:offerObj,
-            username: nameInput.value.trim() || ''
+            username: nameInput.value.trim() || '', 
+            cert: currentCertificate?.cert
           };
 
           const encoded = b64urlEncode(JSON.stringify(offerWrap));

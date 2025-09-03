@@ -1,4 +1,5 @@
 import { getList , runScript, appendToList } from '../js/loader.js';
+import { getCurrentCertificate } from '../js/utils.js';
 
 export async function run(containerId = "content") {
     console.log("Rendering Users Page");
@@ -16,10 +17,7 @@ export async function run(containerId = "content") {
         </div>
     `;
     container.querySelector('.addButton').onclick = () => {
-        var certInfo = getList('certificates').find( c => c.active );
-        if( !certInfo ) {
-            certInfo = getList('certificates').find( c => true );
-        }
+        var certInfo = getCurrentCertificate();
         var user = {
             username: certInfo.username
         }

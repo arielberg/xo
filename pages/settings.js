@@ -38,7 +38,6 @@ function renderList(container, list) {
         <th>Active</th>
         <th>Username</th>
         <th>Label</th>
-        <th>Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -81,14 +80,7 @@ function renderList(container, list) {
 
     // Actions
     const tdActions = document.createElement('td');
-    const btnDelete = document.createElement('button');
-    btnDelete.textContent = 'Delete';
-    btnDelete.onclick = () => {
-      list.splice(idx, 1);
-      saveCerts(list);
-      renderList(container, list);
-    };
-    tdActions.appendChild(btnDelete);
+   
     tr.appendChild(tdActions);
 
     tbody.appendChild(tr);

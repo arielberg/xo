@@ -1,8 +1,9 @@
 // pages/offerAnswer.js — auto-apply, no incoming-offer UI, output = base64url(answer)
 // Uses shared encoders from ../js/utils.js
 
-import { b64urlEncode, b64urlDecode } from '../js/utils.js';
+import { getCurrentCertificate, b64urlEncode, b64urlDecode } from '../js/utils.js';
 import { getList , runScript, appendToList } from '../js/loader.js';
+import { createPC, sendMessage } from '../js/WebRtc.js';
 
 async function waitIceComplete(pc) {
   if (pc.iceGatheringState === 'complete') return;
@@ -30,7 +31,7 @@ export async function run(containerId = 'content', queryParams = null) {
       <style>
         .card { border:1px solid #e5e7eb; border-radius:14px; padding:16px; max-width:900px; }
         .row { display:flex; gap:10px; align-items:center; margin:10px 0; flex-wrap:wrap; }
-        .btn { padding:8px 12px; border:1px solid #222; border-radius:10px; cursor:pointer; background:#fff; }
+        .btn { padding:8px 12px; border:1px solid #222; border-radius:10px; cursor:pointer; }
         .input, textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:10px; background:#fafafa; }
         .muted { color:#6b7280; font-size:12px; }
         .ok { color:#059669; }
@@ -75,36 +76,18 @@ export async function run(containerId = 'content', queryParams = null) {
   status.textContent = 'Offer found. Applying...';
 
   // 2) Apply offer, create answer, wait ICE, output base64url(answer)
-  let pc = null; let dc = null;
+  let pc = null; 
+  let dc = null;
+  
   try {
     const offerText = b64urlDecode(offerParam);
-    const offerObj = JSON.parse(offerText); // RTCSessionDescriptionInit
+    const newUserObj = JSON.parse(offerText); // RTCSessionDescriptionInit
 
-    pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    pc = createPC();
+        
+    appendToList('users', newUserObj);
 
-    // If caller created a DataChannel
-    pc.ondatachannel = (ev) => {
-      const dc = ev.channel;
-
-      // אם יש API פנימי: שמירה וטריגר למאזינים
-      try { setDataChannel?.(dc); onPeerEvents?.({ ondc: () => {} }); } catch {}
-    
-      dc.onopen = () => {
-        log('[dc] open');
-        console.log(dc);
-        //runScript('/apps/chat.js');
-      };
-      dc.onmessage = (e) => log('[dc] msg:', String(e.data).slice(0, 200));
-      dc.onclose = () => log('[dc] close');
-    };
-    pc.oniceconnectionstatechange = () => log('[pc] ice:', pc.iceConnectionState);
-    
-    var user = {
-      username: offerObj.username
-    }
-    appendToList('users', user);
-
-    await pc.setRemoteDescription(offerObj.offer);
+    await pc.setRemoteDescription(newUserObj.offer);
     log('Remote description set. Creating answer...');
 
     const answer = await pc.createAnswer();

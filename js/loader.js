@@ -28,6 +28,9 @@ export function initApp() {
     if( mycertficates.length === 0 ) {
         runScript('/pages/createCertificate.js', queryParams );
     }
+    else {
+        runScript('/pages/home.js', queryParams );
+    }
 }
 
 

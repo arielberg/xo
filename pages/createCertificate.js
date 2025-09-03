@@ -1,4 +1,4 @@
-import { getList , runScript, appendToList } from '../js/loader.js';
+import { getList , runScript, appendToList, getCurrentPage } from '../js/loader.js';
 import createCA from '../wasm/ssl/ca.js';
 
 
@@ -28,12 +28,7 @@ export async function run(containerId = "content", queryParams = {}) {
         const { certPem, keyPem } = caModule.generate_ca(3650,certInfo );
         console.log(certPem, keyPem);
         appendToList('certificates', {cert:certPem, key:keyPem, active:true, username:username } );
-        if( queryParams.has('offer') ) {
-            runScript('/pages/offerAnswer.js');
-        }
-        else {
-            runScript('/pages/settings.js');
-        }
+        runScript(getCurrentPage(queryParams), {} );
     }
 
     container.querySelector('#buttonContainer').appendChild(addButton);

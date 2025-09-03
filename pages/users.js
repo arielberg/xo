@@ -1,5 +1,5 @@
 import { getList , runScript } from '../js/loader.js';
-import { bindDataChannel, createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
+import { createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
 import { b64urlEncode, b64urlDecode, getCurrentCertificate } from '../js/utils.js';
 
 export async function run(containerId = "content") {
@@ -104,7 +104,6 @@ export async function run(containerId = "content") {
 
       const bindPeerDebug = () => {
         try {
-          console.log('aaaaa');
           onPeerEvents?.({
             onice: (state) => { log('[pc] ice:', state); statusPill.textContent = state; },
             onconn: (state) => { 
@@ -112,8 +111,7 @@ export async function run(containerId = "content") {
                 if (state === 'connected') {
                   //  runScript('/apps/chat.js');
                 }
-            },
-            ondc: bindDataChannel
+            }
           });
         } catch {}
       };

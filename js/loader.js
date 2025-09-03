@@ -24,15 +24,24 @@ export function initApp() {
         }
         tabContainer.appendChild(tab);
     });
-    var mycertficates = getList('certificates', [], true );
-    if( mycertficates.length === 0 ) {
-        runScript('/pages/createCertificate.js', queryParams );
-    }
-    else {
-        runScript('/pages/home.js', queryParams );
-    }
+    runScript(getCurrentPage(queryParams), queryParams );
+    
 }
 
+
+export function getCurrentPage(queryParams) {
+    var mycertficates = getList('certificates', [], true );
+    if( mycertficates.length === 0 ) {
+        return '/pages/createCertificate.js';
+    }
+    if( queryParams.has('offer') ) {
+        runScript('/pages/offerAnswer.js');
+    }
+    else {
+        runScript('/pages/settings.js');
+    }
+    return '/pages/home.js';
+}
 
 
 export function runScript(pagePath, params) {

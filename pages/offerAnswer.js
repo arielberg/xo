@@ -81,13 +81,18 @@ export async function run(containerId = 'content', queryParams = null) {
   
   try {
     const offerText = b64urlDecode(offerParam);
-    const newUserObj = JSON.parse(offerText); // RTCSessionDescriptionInit
+    const offerObjOrWrapper = JSON.parse(offerText); // might be {type,sdp} or {offer:{type,sdp}}
 
-    pc = createPC();
-        
-    appendToList('users', newUserObj);
+    const pc = createPC();            // registers ondatachannel BEFORE applying offer
+    const remote = offerObjOrWrapper?.type
+      ? offerObjOrWrapper
+      : offerObjOrWrapper?.offer?.type
+        ? offerObjOrWrapper.offer
+        : null;
 
-    await pc.setRemoteDescription(newUserObj.offer);
+    if (!remote) throw new Error('Invalid offer payload');
+
+    await pc.setRemoteDescription(remote);   // <-- key fix
     log('Remote description set. Creating answer...');
 
     const answer = await pc.createAnswer();

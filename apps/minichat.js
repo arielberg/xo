@@ -1,6 +1,4 @@
 // Minimal chat page: send/receive over an existing WebRTC DataChannel
-// Assumes WebRtc.js exposes: getDataChannel(), sendMessage(text), onPeerEvents(cb)
-
 import { getDataChannel, sendMessage, onPeerEvents } from '../js/WebRtc.js';
 
 export async function run(containerId = 'content') {

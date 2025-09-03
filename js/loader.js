@@ -109,20 +109,34 @@ export function getList(type, defaultReturn = [], skipLoadingJson = false) {
     return defaultReturn;
 }
 
-export function appendToList(type, newItem) {
-    // נקבל את הרשימה הקיימת (או [] אם לא קיימת)
+export function appendToList(type, newItem, keys = [], override = true) {
+    // נטען את הרשימה הקיימת
     let currentList = getList(type, []);
 
-    // נוסיף את הפריט החדש
-    currentList.push(newItem);
+    // נבדוק אם יש כבר פריט זהה לפי כל המפתחות
+    let index = currentList.findIndex(item =>
+        keys.every(key => item[key] === newItem[key])
+    );
 
-    // נשמור גם במטמון וגם ב-localStorage
+    if (index !== -1) {
+        if ( override ) {
+        // אם קיים → עדכון הפריט
+            currentList[index] = { ...currentList[index], ...newItem };
+            console.log(`Updated item in ${type}:`, newItem);
+        }
+    } else {
+        // אם לא קיים → הוספה
+        currentList.push(newItem);
+        console.log(`Appended item to ${type}:`, newItem);
+    }
+
+    // נשמור במטמון וב־localStorage
     moduleCache.set(type, currentList);
     localStorage.setItem(type, JSON.stringify(currentList));
 
-    console.log(`Appended item to ${type}:`, newItem);
     return currentList;
 }
+
 
 // Utility method to clear cache
 function clearCache() {

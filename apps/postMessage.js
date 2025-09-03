@@ -1,7 +1,7 @@
 // Minimal page: simple textarea to send messages over existing WebRTC DataChannel
 import { sendMessage } from '../js/WebRtc.js';
 
-export async function run(containerId = 'content') {
+export async function run(containerId = 'content', args) {
   const el = document.getElementById(containerId);
   if (!el) return;
 

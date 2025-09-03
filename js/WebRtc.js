@@ -1,39 +1,54 @@
-let _pc = null;
-let _dc = null;
+import rsa_encrypt_b64 from '../wasm/ssl/ca.js';
+
+let _pc = [];
+let _dc = {};
 let _handlers = null;
+
 
 export function onPeerEvents(handlers = {}) {
   //_handlers = handlers;
   //if (_dc && _handlers?.ondc) _handlers.ondc(_dc);
 }
 
-export function createPC(channelName) {
-  if (_pc) return _pc;
+export function createPC(userId, channelName) {
+  
+  if( !userId ) throw new TypeError('userId must be provided');
 
-  _pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+  if (_pc[userId]) return _pc[userId];
+
+  _pc[userId] = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
 
   if (channelName) {
     // caller side: create DC before createOffer()
-    const dc = _pc.createDataChannel(channelName);
+    const dc = _pc[userId].createDataChannel(channelName);   
     bindDataChannel(dc);
-  } else {
-    // callee side: wait for incoming DC
-    _pc.ondatachannel = (ev) => {
-      console.log('[pc] ondatachannel', ev.channel);
-      bindDataChannel(ev.channel);
-    };
-  }
+    if( ! _dc[userId] )  _dc[userId] = {};
+    _dc[userId][channelName] = dc;
+  } 
+  _pc[userId].ondatachannel = (ev) => {
+    console.log('[pc] ondatachannel', ev.channel);
+    bindDataChannel(ev.channel);
+  };
 
-  _pc.oniceconnectionstatechange = () =>
-    console.log('[pc] ice:', _pc.iceConnectionState);
-  _pc.onconnectionstatechange = () =>
-    console.log('[pc] conn:', _pc.connectionState);
+  _pc[userId].oniceconnectionstatechange = () =>
+    console.log('[pc] ice:', _pc[userId].iceConnectionState);
+  _pc[userId].onconnectionstatechange = () =>
+    console.log('[pc] conn:', _pc[userId].connectionState);
 
-  return _pc;
+  return _pc[userId];
 }
 
-export async function createOffer() {
-  const pc = createPC('chat');                         // ensures DC exists in SDP
+export async function tempUserAssignment(tempId, userId) {
+  _pc[userId] = _pc[tempId];
+  _dc[userId] = _dc[tempId];
+  delete _pc[tempId];
+delete _dc[tempId];
+}
+export async function createOffer(userId) {
+  
+  if( !userId ) throw new TypeError('userId must be provided');
+
+  const pc = createPC(userId, 'main');                         // ensures DC exists in SDP
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
 
@@ -46,28 +61,29 @@ export async function createOffer() {
   return pc.localDescription;
 }
 
-export async function acceptAnswer(answerJson) {
-  if (!_pc) throw new Error('PeerConnection not initialized');
+export async function acceptAnswer(userId, answerJson) {
+  if (!_pc[userId]) throw new Error('PeerConnection not initialized');
   const answerObj = JSON.parse(answerJson);
-  await _pc.setRemoteDescription(answerObj);
+  await _pc[userId].setRemoteDescription(answerObj);
 }
 
-export function bindDataChannel(dc) {
-  _dc = dc;
-  _dc.onopen    = () => console.log('[dc] open');
-  _dc.onmessage = (e) => console.log('[dc] msg:', String(e.data).slice(0, 200));
-  _dc.onclose   = () => console.log('[dc] close');
-  // notify listeners if registered
-  _handlers?.ondc?.(_dc);
+export function bindDataChannel(dc) {  
+  dc.onopen    = () => console.log('[dc] open');
+  dc.onmessage = (e) => console.log('[dc] msg:', String(e.data).slice(0, 200));
+  dc.onclose   = () => console.log('[dc] close');
 }
 
-export function getDataChannel() {
-  return _dc;
-}
 
-export function sendMessage(text) {
-  console.log('sendMessage:', text);
-  if (!_dc || _dc.readyState !== 'open') throw new Error('DataChannel not open');
-  _dc.send(text);
+export function sendMessage(content, channel, from_id, to_id , type) {
+  if (!_dc[to_id] || !_dc[to_id][channel] || _dc[to_id][channel].readyState !== 'open') throw new Error('DataChannel not open');
+  let message = {
+    from:from,
+    to:to,
+    type:type,
+    content:content
+  };
+ // let messageEncrypted = rsa_encrypt_b64( JSON.stringify(message) );
+ // let text = JSON.stringify(messageEncrypted);
+ _dc[to_id][channel].send(content);
   console.log('sent');
 }

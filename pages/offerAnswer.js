@@ -1,7 +1,7 @@
 // pages/offerAnswer.js — auto-apply, no incoming-offer UI, output = base64url(answer)
 // Uses shared encoders from ../js/utils.js
 
-import { getCurrentCertificate, b64urlEncode, b64urlDecode } from '../js/utils.js';
+import { getCurrentCertificate,getCertificateId,downloadText, b64urlEncode, b64urlDecode } from '../js/utils.js';
 import { getList , runScript, appendToList } from '../js/loader.js';
 import { createPC, sendMessage } from '../js/WebRtc.js';
 
@@ -82,15 +82,22 @@ export async function run(containerId = 'content', queryParams = null) {
   try {
     const offerText = b64urlDecode(offerParam);
     const offerObjOrWrapper = JSON.parse(offerText); // might be {type,sdp} or {offer:{type,sdp}}
-
-    const pc = createPC();            // registers ondatachannel BEFORE applying offer
+    const callerCertId = getCertificateId(offerObjOrWrapper.cert);
+    let isNew = offerObjOrWrapper.isNew;
+   
+           // registers ondatachannel BEFORE applying offer
     const remote = offerObjOrWrapper?.type
       ? offerObjOrWrapper
       : offerObjOrWrapper?.offer?.type
         ? offerObjOrWrapper.offer
         : null;
 
+
+    console.log(remote, offerObjOrWrapper );
     if (!remote) throw new Error('Invalid offer payload');
+
+
+    const pc = createPC(callerCertId);    
 
     await pc.setRemoteDescription(remote);   // <-- key fix
     log('Remote description set. Creating answer...');
@@ -101,11 +108,25 @@ export async function run(containerId = 'content', queryParams = null) {
     await waitIceComplete(pc);
 
     const fullAnswer = pc.localDescription; // RTCSessionDescription
-    const encodedAnswer = b64urlEncode(JSON.stringify(fullAnswer));
-
+    
+    let currentCert = getCurrentCertificate();
+    var responseAnswer = {
+      answer:JSON.stringify(fullAnswer)
+    }
+    let encodedAnswer = b64urlEncode(JSON.stringify(responseAnswer));
+    if( isNew ) {
+      responseAnswer.cert = currentCert.cert;
+      encodedAnswer = b64urlEncode(JSON.stringify(responseAnswer));     
+     // downloadText('answer.w3a', encodedAnswer);
+    }
     answerOut.value = encodedAnswer;
     btnCopy.disabled = false;
     status.innerHTML = '<span class="ok">Answer ready. Copy and send back to caller.</span>';
+    appendToList('users', {
+      cert:offerObjOrWrapper.cert,
+      id: callerCertId,
+      username:offerObjOrWrapper.username
+    }, ['id'] , false );
     log('Answer generated.');
   } catch (e) {
     console.error(e);

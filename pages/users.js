@@ -1,6 +1,6 @@
 import { getList , runScript } from '../js/loader.js';
 import { createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
-import { b64urlEncode, b64urlDecode, getCurrentCertificate } from '../js/utils.js';
+import { b64urlEncode, b64urlDecode, getCurrentCertificate , getIconButton } from '../js/utils.js';
 
 export async function run(containerId = "content") {
   const container = document.getElementById(containerId);
@@ -37,10 +37,7 @@ export async function run(containerId = "content") {
 
     
     users.forEach(user => {
-      if ( user.offer ) {
-        console.log("user.offer:", user.offer);
-       // pc.setRemoteDescription(offerObj.offer);
-      }
+      
       const row = document.createElement("div");
       row.className = "card";
 
@@ -56,9 +53,7 @@ export async function run(containerId = "content") {
       row.appendChild(statusPill);
 
       // Single action button: generate & copy invite link
-      const inviteBtn = document.createElement("button");
-      inviteBtn.className = "btn";
-      inviteBtn.textContent = "Invite (Copy link)";
+      const inviteBtn = getIconButton('Refresh', 'Connect');
       row.appendChild(inviteBtn);
 
       // Link area (hidden after copy)
@@ -71,6 +66,16 @@ export async function run(containerId = "content") {
 
       // Answer area and process button (appear after copying)
       const answerArea = document.createElement('textarea');
+      if ( user.offer ) {
+      //  console.log(user.offer);
+        acceptAnswer(JSON.stringify(user.offer)).then((a) => {
+          console.log('Answer applied from stored offer');
+          console.log(a);
+        }).catch((e)=> {
+          console.error('Failed to apply stored offer:', e);
+        });
+       // pc.setRemoteDescription(offerObj.offer);
+      }
       answerArea.className = 'mono full';
       answerArea.rows = 6;
       answerArea.placeholder = 'Paste the base64url answer here...';
@@ -122,7 +127,7 @@ export async function run(containerId = "content") {
           statusPill.textContent = 'creating offer...';
           statusText.textContent = '';
 
-          const offerRes = await createOffer();
+          const offerRes = await createOffer(user.id);
           const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
           
           var currentCertificate = getCurrentCertificate();
@@ -169,7 +174,9 @@ export async function run(containerId = "content") {
           statusText.textContent = 'Applying answer...';
 
           const answerJson = b64urlDecode(encodedAnswer);
-          await acceptAnswer(answerJson); // expects JSON string of RTCSessionDescriptionInit
+          const parsedAnswer = JSON.parse(answerJson);
+          console.log(user);
+          await acceptAnswer(user.id, parsedAnswer.answer); // expects JSON string of RTCSessionDescriptionInit
 
           bindPeerDebug(); // rebind in case pc was recreated internally
 

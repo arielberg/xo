@@ -1,4 +1,5 @@
 // Minimal chat page: send/receive over an existing WebRTC DataChannel
+import { getCurrentCertificate } from '../js/utils.js';
 import { getDataChannel, sendMessage, onPeerEvents } from '../js/WebRtc.js';
 
 export async function run(containerId = 'content') {
@@ -51,7 +52,9 @@ export async function run(containerId = 'content') {
   const send = () => {
     const text = msg.value.trim();
     if (!text) return;
-    try { sendMessage(text); println('me  :', text); msg.value=''; msg.focus(); }
+    const users = getList('users', []);
+    const currentCert = getCurrentCertificate();
+    try { sendMessage(text,'main',users[0].id, ''); println('me  :', text); msg.value=''; msg.focus(); }
     catch (e) { println('[err] cannot send:', e.message || e); }
   };
 

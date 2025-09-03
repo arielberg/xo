@@ -74,14 +74,12 @@ export function bindDataChannel(dc) {
 }
 
 
-export function sendMessage(content, channel, from_id, to_id , type) {
-  if (!_dc[to_id] || !_dc[to_id][channel] || _dc[to_id][channel].readyState !== 'open') throw new Error('DataChannel not open');
-  let message = {
-    from:from,
-    to:to,
-    type:type,
-    content:content
-  };
+export function sendMessage(content, channel, to_id  ) {
+  if (!_pc[to_id] ) throw new Error('DataChannel not open');
+  if (!_dc[to_id][channel]) {
+    const dc = _pc[userId].createDataChannel(channel);   
+  }
+  
  // let messageEncrypted = rsa_encrypt_b64( JSON.stringify(message) );
  // let text = JSON.stringify(messageEncrypted);
  _dc[to_id][channel].send(content);

@@ -1,0 +1,3 @@
+[submodule "wasm/ssl/mbedtls"]
+	path = wasm/ssl/mbedtls
+	url = https://github.com/Mbed-TLS/mbedtls.git

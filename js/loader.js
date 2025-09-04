@@ -1,3 +1,5 @@
+import { getList } from './utils.js';
+
 let moduleCache = new Map();
     
 export function initApp() {
@@ -61,54 +63,6 @@ export function runScript(pagePath, params) {
     }
 }
 
-
-export function getList(type, defaultReturn = [], skipLoadingJson = false) {
-    // 1. check cache
-    if (moduleCache.has(type)) {
-        console.log(`Loaded ${type} from moduleCache`);
-        return moduleCache.get(type);
-    }
-
-    // 2. check localStorage
-    let data = localStorage.getItem(type);
-    if (data) {
-        try {
-            let parsed = JSON.parse(data);
-            moduleCache.set(type, parsed); // נשמור גם במטמון
-            console.log(`Loaded ${type} from localStorage`);
-            return parsed;
-        } catch (e) {
-            console.error(`Error parsing localStorage for ${type}`, e);
-        }
-    }
-
-    // 3. check file
-    if ( !skipLoadingJson ) {
-        try {
-            let xhr = new XMLHttpRequest();
-            xhr.open("GET", `data/${type}.json`, false); // סינכרוני – רק לשימוש פשוט
-            xhr.send(null);
-
-            if (xhr.status === 200) {
-                let jsonData = JSON.parse(xhr.responseText);
-                localStorage.setItem(type, JSON.stringify(jsonData));
-                moduleCache.set(type, jsonData);
-                console.log(`Loaded ${type} from file data/${type}.json`);
-                return jsonData;
-            } else {
-                console.error(`Failed loading data/${type}.json (status ${xhr.status})`);
-            }
-        } catch (err) {
-            console.error(`Error loading data/${type}.json`, err);
-        }
-    }
-    
-    // 4. default
-    console.log(`Using default return for ${type}`);
-    moduleCache.set(type, defaultReturn);
-    return defaultReturn;
-}
-
 export function appendToList(type, newItem, keys = [], override = true) {
     // נטען את הרשימה הקיימת
     let currentList = getList(type, []);
@@ -144,4 +98,30 @@ function clearCache() {
     console.log('Module cache cleared');
 }
 
+export function overrideCache(type, newVal) {
+    moduleCache.set(type, newVal); 
+    localStorage.setItem(type, JSON.stringify(newVal)); 
+    return newVal;
+}
+
+export function getCached(type) {
+    // 1. check cache
+    if (moduleCache.has(type)) {
+        console.log(`Loaded ${type} from moduleCache`);
+        return moduleCache.get(type);
+    }
+
+    // 2. check localStorage
+    let data = localStorage.getItem(type);
+    if (data) {
+        try {
+            let parsed = JSON.parse(data);
+            moduleCache.set(type, parsed); // נשמור גם במטמון
+            console.log(`Loaded ${type} from localStorage`);
+            return parsed;
+        } catch (e) {
+            console.error(`Error parsing localStorage for ${type}`, e);
+        }
+    }
+}
 

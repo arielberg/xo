@@ -1,7 +1,6 @@
 // Minimal page: simple textarea to send messages over existing WebRTC DataChannel
-import { getCurrentCertificate } from '../js/utils.js';
+import { getCurrentCertificate , getList } from '../js/utils.js';
 import { sendMessage, onPeerEvents } from '../js/WebRtc.js';
-import { getList  } from '../js/loader.js';
 
 export async function run(containerId = 'content', args) {
   const el = document.getElementById(containerId);
@@ -24,8 +23,7 @@ export async function run(containerId = 'content', args) {
 
       const users = getList('users', []);
       const currentCert = getCurrentCertificate();
-      sendMessage(text,'main',users[0].id, ''); 
-      println('me  :', text);      
+      sendMessage(text,'main',users[0].id, '');   
       msg.value = '';
       msg.focus();
     } catch (e) {

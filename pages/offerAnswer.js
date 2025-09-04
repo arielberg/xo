@@ -1,8 +1,8 @@
 // pages/offerAnswer.js — auto-apply, no incoming-offer UI, output = base64url(answer)
 // Uses shared encoders from ../js/utils.js
 
-import { getCurrentCertificate,getCertificateId,downloadText, b64urlEncode, b64urlDecode } from '../js/utils.js';
-import { getList , runScript, appendToList } from '../js/loader.js';
+import { getList, getCurrentCertificate,getCertificateId,downloadText, b64urlEncode, b64urlDecode } from '../js/utils.js';
+import { runScript, appendToList } from '../js/loader.js';
 import { createPC, sendMessage } from '../js/WebRtc.js';
 
 async function waitIceComplete(pc) {
@@ -82,7 +82,7 @@ export async function run(containerId = 'content', queryParams = null) {
   try {
     const offerText = b64urlDecode(offerParam);
     const offerObjOrWrapper = JSON.parse(offerText); // might be {type,sdp} or {offer:{type,sdp}}
-    const callerCertId = getCertificateId(offerObjOrWrapper.cert);
+    const callerCertId = await getCertificateId(offerObjOrWrapper.cert);
     let isNew = offerObjOrWrapper.isNew;
    
            // registers ondatachannel BEFORE applying offer

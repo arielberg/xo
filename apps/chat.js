@@ -1,114 +1,69 @@
-import { onPeerEvents } from '../js/WebRtc.js';
+// Minimal chat page: send/receive over an existing WebRTC DataChannel
+import { getCurrentCertificate } from '../js/utils.js';
+import { getDataChannel, sendMessage, onPeerEvents } from '../js/WebRtc.js';
 
-let dc = null; // active DataChannel
-let ready = false;
+export async function run(containerId = 'content', params = {}) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
 
-function nowTime() {
-  const d = new Date();
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
+  const { peerId, username } = params; // ← מגיע מ-runScript
+  const peerLabel = username || peerId || 'peer';
 
-function appendBubble(listEl, text, who = 'me') {
-  const row = document.createElement('div');
-  row.className = `row ${who}`;
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = text;
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-  meta.textContent = nowTime();
-  row.appendChild(bubble);
-  row.appendChild(meta);
-  listEl.appendChild(row);
-  listEl.scrollTop = listEl.scrollHeight;
-}
-
-function bindChannel(listEl, statusEl) {
-  console.log('ddddd',dc);
-  if (!dc) return;
-  dc.onopen = () => { ready = true; statusEl.textContent = 'connected'; statusEl.classList.add('ok'); };
-  dc.onclose = () => { ready = false; statusEl.textContent = 'disconnected'; statusEl.classList.remove('ok'); };
-  dc.onmessage = (e) => {
-    const msg = String(e.data || '').trim();
-    if (!msg) return;
-    appendBubble(listEl, msg, 'peer');
-  };
-}
-
-export async function run(containerId = 'content') {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  container.innerHTML = `
-    <div class="container mt-5">
-      <style>
-        .chat { max-width: 800px; margin: 0 auto; border:1px solid #e5e7eb; border-radius:16px; display:flex; flex-direction:column; height:70vh; }
-        .chat-header { padding:10px 14px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:8px; }
-        .status { font-size:12px; color:#6b7280; }
-        .status.ok { color:#059669; }
-        .chat-body { flex:1; overflow:auto; padding:12px; background:#fafafa; }
-        .row { display:flex; align-items:flex-end; gap:8px; margin:6px 0; }
-        .row.me { justify-content:flex-end; }
-        .row.peer { justify-content:flex-start; }
-        .bubble { max-width:70%; padding:8px 12px; border-radius:14px; background:#111; color:#fff; }
-        .row.peer .bubble { background:#fff; color:#111; border:1px solid #e5e7eb; }
-        .meta { font-size:11px; color:#6b7280; }
-        .chat-input { display:flex; gap:8px; padding:10px; border-top:1px solid #e5e7eb; }
-        .chat-input input { flex:1; padding:10px; border:1px solid #ddd; border-radius:10px; }
-        .btn { padding:10px 14px; border:1px solid #222; border-radius:10px; background:#111; color:#fff; cursor:pointer; }
-        .btn:disabled { opacity:.6; cursor:not-allowed; }
-      </style>
-
-      <div class="chat">
-        <div class="chat-header">
-          <strong>Chat</strong>
-          <span id="status" class="status">connecting…</span>
-          <span style="margin-left:auto;"><button id="btnClear" class="btn" style="background:#fff;color:#111;">Clear</button></span>
-        </div>
-        <div id="list" class="chat-body"></div>
-        <div class="chat-input">
-          <input id="msg" type="text" placeholder="Type a message" />
-          <button id="send" class="btn" disabled>Send</button>
-        </div>
+  el.innerHTML = `
+    <div style="max-width:720px;margin:24px auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;font:14px system-ui, sans-serif;">
+      <div style="padding:10px 12px;border-bottom:1px solid #e5e7eb;display:flex;gap:8px;align-items:center;">
+        <strong>Mini Chat</strong>
+        <span style="color:#6b7280;">&nbsp;•&nbsp;${peerLabel}</span>
+        <span id="st" style="margin-left:auto;color:#6b7280;">connecting…</span>
       </div>
-    </div>
-  `;
+      <div style="height:50vh;overflow:auto;background:#fafafa;padding:10px;">
+        <pre id="log" style="margin:0;white-space:pre-wrap;word-break:break-word;"></pre>
+      </div>
+      <div style="display:flex;gap:8px;padding:10px;border-top:1px solid #e5e7eb;">
+        <input id="msg" type="text" placeholder="Type and Enter…" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;" />
+        <button id="send" style="padding:10px 14px;border:1px solid #222;border-radius:8px;background:#111;color:#fff;">Send</button>
+      </div>
+    </div>`;
 
-  const listEl = container.querySelector('#list');
-  const statusEl = container.querySelector('#status');
-  const msgEl = container.querySelector('#msg');
-  const sendBtn = container.querySelector('#send');
-  const clearBtn = container.querySelector('#btnClear');
+  const st = el.querySelector('#st');
+  const log = el.querySelector('#log');
+  const msg = el.querySelector('#msg');
+  const sendBtn = el.querySelector('#send');
 
-  let dc = null;
+  const println = (...a) => {
+    log.textContent += (log.textContent ? '\n' : '') + a.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ');
+    log.parentElement.scrollTop = log.parentElement.scrollHeight;
+  };
 
-    onPeerEvents?.({
-        ondc: (channel) => { dc = channel; wire(); },
-        onconn: (state) => { /* עדכון סטטוס UI */ }
-    });
+  const wire = (dc) => {
+    if (!dc) { println('[!] No DataChannel yet.'); st.textContent = 'waiting for channel'; sendBtn.disabled = true; return; }
+    st.textContent = dc.readyState;
+    sendBtn.disabled = dc.readyState !== 'open';
+    dc.onopen = () => { st.textContent = 'open'; sendBtn.disabled = false; println('[dc] open'); };
+    dc.onclose = () => { st.textContent = 'closed'; sendBtn.disabled = true; println('[dc] close'); };
+    dc.onmessage = (e) => { println('peer:', String(e.data)); };
+  };
 
-    function wire() {
-      console.log('wire');
-      const ch = dc || getDataChannel();
-      console.log(dc);
-      if (!ch) return;
-      ch.onmessage = (e) => appendBubble(listEl, String(e.data), 'peer');
-      ch.onopen    = () => { sendBtn.disabled = false; setStatus('connected'); };
-      ch.onclose   = () => { sendBtn.disabled = true;  setStatus('disconnected'); };
+  // bind to current/future channel
+  wire(getDataChannel?.());
+  onPeerEvents?.({ ondc: (dc) => wire(dc), onconn: (state) => { st.textContent = state; } });
+
+  // שליחה – משתמש ב-peerId שהועבר
+  const send = () => {
+    if (!peerId) { println('[err] No peerId provided'); return; }
+    const text = msg.value.trim();
+    if (!text) return;
+    try {
+      // channel label 'main' (או מה שאתם משתמשים בו), peerId מה־params
+      sendMessage(text, 'main', peerId, '');
+      println('me  :', text);
+      msg.value = '';
+      msg.focus();
+    } catch (e) {
+      println('[err] cannot send:', e.message || e);
     }
+  };
 
-    sendBtn.onclick = () => {
-        const text = msgEl.value.trim();
-        if (!text) return;
-        try {
-            sendMessage(text);      // משתמש בפונקציה מ־WebRtc.js
-            appendBubble(listEl, text, 'me');
-            msgEl.value = '';
-        } catch (e) {
-            // הציגי שגיאה קטנה ב־UI אם תרצי
-        }
-    };
-    
-    clearBtn.onclick = () => { 
-        listEl.innerHTML = ''; };
+  sendBtn.onclick = send;
+  msg.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
 }

@@ -1,6 +1,6 @@
-import { getList , runScript } from '../js/loader.js';
+import { runScript } from '../js/loader.js';
 import { createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
-import { b64urlEncode, b64urlDecode, getCurrentCertificate , getIconButton } from '../js/utils.js';
+import { getList, removeFromList, b64urlEncode, b64urlDecode, getCurrentCertificate , getIconButton } from '../js/utils.js';
 
 export async function run(containerId = "content") {
   const container = document.getElementById(containerId);
@@ -30,177 +30,209 @@ export async function run(containerId = "content") {
 
   container.querySelector('#btnAdd').onclick = () => runScript('/pages/addUser.js');
 
-  try {
-    const users = getList('users') || [];
-    const list = container.querySelector("#userTable");
-    list.innerHTML = "";
+  function gernerateUserTable() {
+    try {
+      const users = getList('users') || [];
+      const list = container.querySelector("#userTable");
+      list.innerHTML = "";
 
-    
-    users.forEach(user => {
       
-      const row = document.createElement("div");
-      row.className = "card";
+      users.forEach(user => {
+        
+        const row = document.createElement("div");
+        row.className = "card";
 
-      const nameInput = document.createElement("input");
-      nameInput.className = "username";
-      nameInput.value = user.username ?? "";
-      nameInput.title = "Click to edit";
-      row.appendChild(nameInput);
+        const nameInput = document.createElement("input");
+        nameInput.className = "username";
+        nameInput.value = user.username ?? "";
+        nameInput.title = "Click to edit";
+        row.appendChild(nameInput);
 
-      const statusPill = document.createElement('span');
-      statusPill.className = 'pill muted';
-      statusPill.textContent = 'idle';
-      row.appendChild(statusPill);
+        const statusPill = document.createElement('span');
+        statusPill.className = 'pill muted';
+        statusPill.textContent = 'idle';
+        row.appendChild(statusPill);
 
-      // Single action button: generate & copy invite link
-      const inviteBtn = getIconButton('Refresh', 'Connect');
-      row.appendChild(inviteBtn);
+        // Single action button: generate & copy invite link
+        const inviteBtn = getIconButton('Refresh', 'Connect');
+        row.appendChild(inviteBtn);
 
-      // Link area (hidden after copy)
-      const linkArea = document.createElement('input');
-      linkArea.className = 'mono full';
-      linkArea.readOnly = true;
-      linkArea.placeholder = 'Invitation link will appear here...';
-      linkArea.style.display = 'none';
-      row.appendChild(linkArea);
+        // Delete button
+        const deleteBtn = getIconButton('Delete', 'Delete user');
+        row.appendChild(deleteBtn);
 
-      // Answer area and process button (appear after copying)
-      const answerArea = document.createElement('textarea');
-      if ( user.offer ) {
-      //  console.log(user.offer);
-        acceptAnswer(JSON.stringify(user.offer)).then((a) => {
-          console.log('Answer applied from stored offer');
-          console.log(a);
-        }).catch((e)=> {
-          console.error('Failed to apply stored offer:', e);
-        });
-       // pc.setRemoteDescription(offerObj.offer);
-      }
-      answerArea.className = 'mono full';
-      answerArea.rows = 6;
-      answerArea.placeholder = 'Paste the base64url answer here...';
-      answerArea.style.display = 'none';
-      row.appendChild(answerArea);
+        // Chat button
+        const chatBtn = getIconButton('MessageSquare', 'Chat with user');
+        row.appendChild(chatBtn);
 
-      const processBtn = document.createElement('button');
-      processBtn.className = 'btn';
-      processBtn.textContent = 'Process Answer';
-      processBtn.style.display = 'none';
-      row.appendChild(processBtn);
+        // Link area (hidden after copy)
+        const linkArea = document.createElement('input');
+        linkArea.className = 'mono full';
+        linkArea.readOnly = true;
+        linkArea.placeholder = 'Invitation link will appear here...';
+        linkArea.style.display = 'none';
+        row.appendChild(linkArea);
 
-      const logBox = document.createElement('textarea');
-      logBox.className = 'mono full';
-      logBox.rows = 6;
-      logBox.readOnly = true;
-      logBox.style.display = 'none';
-      logBox.placeholder = 'Connection logs will appear here...';
-      row.appendChild(logBox);
-
-      const statusText = document.createElement('div');
-      statusText.className = 'muted full';
-      row.appendChild(statusText);
-
-      const log = (...args) => {
-        logBox.style.display='block';
-        const line = args.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ');
-        logBox.value += (logBox.value?'\n':'') + line;
-        logBox.scrollTop = logBox.scrollHeight;
-      };
-
-      const bindPeerDebug = () => {
-        try {
-          onPeerEvents?.({
-            onice: (state) => { log('[pc] ice:', state); statusPill.textContent = state; },
-            onconn: (state) => { 
-               
-                if (state === 'connected') {
-                  //  runScript('/apps/chat.js');
-                }
-            }
+        // Answer area and process button (appear after copying)
+        const answerArea = document.createElement('textarea');
+        if ( user.offer ) {
+        //  console.log(user.offer);
+          acceptAnswer(JSON.stringify(user.offer)).then((a) => {
+            console.log('Answer applied from stored offer');
+            console.log(a);
+          }).catch((e)=> {
+            console.error('Failed to apply stored offer:', e);
           });
-        } catch {}
-      };
+        // pc.setRemoteDescription(offerObj.offer);
+        }
+        answerArea.className = 'mono full';
+        answerArea.rows = 6;
+        answerArea.placeholder = 'Paste the base64url answer here...';
+        answerArea.style.display = 'none';
+        row.appendChild(answerArea);
 
-      inviteBtn.onclick = async () => {
-        try {
-          inviteBtn.disabled = true;
-          statusPill.textContent = 'creating offer...';
-          statusText.textContent = '';
+        const processBtn = document.createElement('button');
+        processBtn.className = 'btn';
+        processBtn.textContent = 'Process Answer';
+        processBtn.style.display = 'none';
+        row.appendChild(processBtn);
 
-          const offerRes = await createOffer(user.id);
-          const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
-          
-          var currentCertificate = getCurrentCertificate();
+        const logBox = document.createElement('textarea');
+        logBox.className = 'mono full';
+        logBox.rows = 6;
+        logBox.readOnly = true;
+        logBox.style.display = 'none';
+        logBox.placeholder = 'Connection logs will appear here...';
+        row.appendChild(logBox);
 
-          var offerWrap = {
-            offer:offerObj,
-            username: nameInput.value.trim() || '', 
-            cert: currentCertificate?.cert
-          };
+        const statusText = document.createElement('div');
+        statusText.className = 'muted full';
+        row.appendChild(statusText);
 
-          const encoded = b64urlEncode(JSON.stringify(offerWrap));
+        const log = (...args) => {
+          logBox.style.display='block';
+          const line = args.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ');
+          logBox.value += (logBox.value?'\n':'') + line;
+          logBox.scrollTop = logBox.scrollHeight;
+        };
 
-          bindPeerDebug();
+        const bindPeerDebug = () => {
+          try {
+            onPeerEvents?.({
+              onice: (state) => { log('[pc] ice:', state); statusPill.textContent = state; },
+              onconn: (state) => { 
+                
+                  if (state === 'connected') {
+                    //  runScript('/apps/chat.js');
+                  }
+              }
+            });
+          } catch {}
+        };
 
-          const link = `${location.origin}${location.pathname}?offer=${encoded}`;
-          linkArea.value = link;
-          linkArea.style.display = '';
-
-          // Copy immediately
-          if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(link);
-          } else {
-            linkArea.select();
-            document.execCommand('copy');
+        deleteBtn.onclick = async () => {
+          try {
+          // 
+            // if (!confirm(`Delete ${name}? This cannot be undone.`)) return;
+        
+            removeFromList('users', user);
+            gernerateUserTable();
+          } catch (e) {
+            console.error('Failed to delete user:', e);
+            alert('Error deleting user');
           }
+        };
 
-          inviteBtn.style.display = 'none';
-          statusPill.textContent = 'link copied — waiting for answer';
-          statusText.textContent = 'Share the link. When you receive the base64url answer, paste it below and click Process.';
-          answerArea.style.display = '';
-          processBtn.style.display = 'inline-flex';
-        } catch (e) {
-          console.error('Failed to generate/copy invite link:', e);
-          statusPill.textContent = 'error';
-          statusText.textContent = e?.message || 'Error generating link';
-          inviteBtn.disabled = false;
-        }
-      };
+        // handler
+        chatBtn.onclick = () => {
+          // פותח את דף הצ'אט ומוסר את מזהה המשתמש כ-param
+          runScript('/apps/chat.js', { peerId: user.id, username: nameInput.value.trim() });
+        };
 
-      processBtn.onclick = async () => {
-        try {
-          const encodedAnswer = (answerArea.value || '').trim();
-          if (!encodedAnswer) { statusText.textContent = 'No answer pasted.'; return; }
-          statusText.textContent = 'Applying answer...';
+        inviteBtn.onclick = async () => {
+          try {
+            inviteBtn.disabled = true;
+            statusPill.textContent = 'creating offer...';
+            statusText.textContent = '';
 
-          const answerJson = b64urlDecode(encodedAnswer);
-          const parsedAnswer = JSON.parse(answerJson);
-          console.log(user);
-          await acceptAnswer(user.id, parsedAnswer.answer); // expects JSON string of RTCSessionDescriptionInit
+            const offerRes = await createOffer(user.id);
+            const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
+            
+            var currentCertificate = getCurrentCertificate();
 
-          bindPeerDebug(); // rebind in case pc was recreated internally
+            var offerWrap = {
+              offer:offerObj,
+              username: nameInput.value.trim() || '', 
+              cert: currentCertificate?.cert
+            };
 
-          statusText.textContent = 'Answer applied. Waiting for connection...';
-          log('[ok] answer applied');
-          processBtn.disabled = true;
-        } catch (e) {
-          console.error('Failed to apply answer:', e);
-          statusText.textContent = 'Error applying answer';
-          log('[err]', e?.message || e);
-        }
-      };
+            const encoded = b64urlEncode(JSON.stringify(offerWrap));
 
-      list.appendChild(row);
-    });
+            bindPeerDebug();
 
-    if (!users.length) {
-      const empty = document.createElement('div');
-      empty.className = 'muted';
-      empty.textContent = "No users yet. Click 'Add User' to create one.";
-      list.appendChild(empty);
+            const link = `${location.origin}${location.pathname}?offer=${encoded}`;
+            linkArea.value = link;
+            linkArea.style.display = '';
+
+            // Copy immediately
+            if (navigator.clipboard?.writeText) {
+              await navigator.clipboard.writeText(link);
+            } else {
+              linkArea.select();
+              document.execCommand('copy');
+            }
+
+            inviteBtn.style.display = 'none';
+            statusPill.textContent = 'link copied — waiting for answer';
+            statusText.textContent = 'Share the link. When you receive the base64url answer, paste it below and click Process.';
+            answerArea.style.display = '';
+            processBtn.style.display = 'inline-flex';
+          } catch (e) {
+            console.error('Failed to generate/copy invite link:', e);
+            statusPill.textContent = 'error';
+            statusText.textContent = e?.message || 'Error generating link';
+            inviteBtn.disabled = false;
+          }
+        };
+
+        processBtn.onclick = async () => {
+          try {
+            const encodedAnswer = (answerArea.value || '').trim();
+            if (!encodedAnswer) { statusText.textContent = 'No answer pasted.'; return; }
+            statusText.textContent = 'Applying answer...';
+
+            const answerJson = b64urlDecode(encodedAnswer);
+            const parsedAnswer = JSON.parse(answerJson);
+            console.log(user);
+            await acceptAnswer(user.id, parsedAnswer.answer); // expects JSON string of RTCSessionDescriptionInit
+
+            bindPeerDebug(); // rebind in case pc was recreated internally
+
+            statusText.textContent = 'Answer applied. Waiting for connection...';
+            log('[ok] answer applied');
+            processBtn.disabled = true;
+          } catch (e) {
+            console.error('Failed to apply answer:', e);
+            statusText.textContent = 'Error applying answer';
+            log('[err]', e?.message || e);
+          }
+        };
+
+        list.appendChild(row);
+      });
+
+      if (!users.length) {
+        const empty = document.createElement('div');
+        empty.className = 'muted';
+        empty.textContent = "No users yet. Click 'Add User' to create one.";
+        list.appendChild(empty);
+      }
+      
+    } catch (e) {
+      console.error("Failed to load users:", e);
+      container.innerHTML += `<p class="text-danger">Error loading users</p>`;
     }
-  } catch (e) {
-    console.error("Failed to load users:", e);
-    container.innerHTML += `<p class="text-danger">Error loading users</p>`;
   }
+  console.log('aaaa');
+  gernerateUserTable();
 }

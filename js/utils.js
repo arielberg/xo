@@ -1,4 +1,4 @@
-import { getList } from './loader.js';
+import { getCached, overrideCache } from './loader.js';
 
 
 // עוזרות ל-base64url כששולחים/מקבלים SDP
@@ -79,3 +79,40 @@ export function getIconButton(iconName, title = '') {
   
     return btn;
   }
+
+  export function removeFromList(type, item ) {
+    let list = getList(type, []);
+    const index = list.findIndex(u => u.id === item.id);
+
+    if (index !== -1) {
+      list.splice(index, 1);
+      return overrideCache(type, list);
+    } 
+    return list;
+  }
+  export function getList(type, defaultReturn = [], skipLoadingJson = false) {
+      // 1. check cache
+      var data = getCached(type );
+      if ( data ) return data;
+      // 3. check file
+      let newVal = defaultReturn;
+      if ( !skipLoadingJson ) {
+          try {
+              let xhr = new XMLHttpRequest();
+              xhr.open("GET", `data/${type}.json`, false); // סינכרוני – רק לשימוש פשוט
+              xhr.send(null);
+  
+              if (xhr.status === 200) {
+                 newVal = JSON.parse(xhr.responseText);                
+              } else {
+                  console.error(`Failed loading data/${type}.json (status ${xhr.status})`);
+              }
+          } catch (err) {
+              console.error(`Error loading data/${type}.json`, err);
+          }
+      }
+      
+      // 4. default
+      return overrideCache(type, newVal);
+  }
+  

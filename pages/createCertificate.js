@@ -1,4 +1,6 @@
-import { getList , runScript, appendToList, getCurrentPage } from '../js/loader.js';
+import { runScript, appendToList, getCurrentPage } from '../js/loader.js';
+import { getList } from '../js/utils.js';
+
 import createCA from '../wasm/ssl/ca.js';
 
 

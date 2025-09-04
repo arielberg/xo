@@ -1,5 +1,6 @@
 // settings.js
-import { getList, runScript } from '../js/loader.js';
+import { runScript } from '../js/loader.js';
+import { getList } from '../js/utils.js';
 
 const STORAGE_KEY = 'certificates';
 

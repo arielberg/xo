@@ -62,7 +62,7 @@ export async function run(containerId = "content") {
         row.appendChild(deleteBtn);
 
         // Chat button
-        const chatBtn = getIconButton('MessageSquare', 'Chat with user');
+        const chatBtn = getIconButton('Message', 'Chat with user');
         row.appendChild(chatBtn);
 
         // Link area (hidden after copy)

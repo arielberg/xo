@@ -60,25 +60,37 @@ function toBase58(bytes){
 }
 
 export function getIconButton(iconName, title = '') {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    if (title) btn.title = title;
-  
-    // Load the SVG inline (requires bundler support like Vite: import.meta.glob)
-    fetch(`../icons/${iconName}.svg`)
-      .then(res => res.text())
-      .then(svg => {
-        btn.innerHTML = svg;
-        const svgEl = btn.querySelector('svg');
-        if (svgEl) {
-          svgEl.setAttribute('fill', 'white');     // force fill
-          svgEl.style.width = '20px';              // optional
-          svgEl.style.height = '20px';
-        }
-      });
-  
-    return btn;
-  }
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  const label = title || iconName;
+  if (label) btn.title = label;
+  btn.setAttribute('aria-label', label);
+
+  // נטען את ה־SVG; אם נכשל – ניפול לטקסט
+  (async () => {
+    try {
+      const url = `../icons/${encodeURIComponent(iconName)}.svg`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const svg = await res.text();
+
+      btn.innerHTML = svg;
+      const svgEl = btn.querySelector('svg');
+      if (svgEl) {
+        // צבע לבן וגודל
+        svgEl.setAttribute('fill', 'currentColor');
+        svgEl.style.width = '20px';
+        svgEl.style.height = '20px';
+        btn.style.color = '#fff'; // הופך את הצבע בפועל ללבן
+      }
+    } catch (e) {
+      // Fallback לטקסט אם הקובץ לא נמצא / שגיאת רשת
+      btn.textContent = label;
+    }
+  })();
+
+  return btn;
+}
 
   export function removeFromList(type, item ) {
     let list = getList(type, []);

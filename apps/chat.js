@@ -1,13 +1,16 @@
 // Minimal chat page: send/receive over an existing WebRTC DataChannel
 import { getCurrentCertificate } from '../js/utils.js';
-import { getDataChannel, sendMessage, onPeerEvents } from '../js/WebRtc.js';
+import { sendMessage } from '../js/WebRtc.js';
 
+var userId;
 export async function run(containerId = 'content', params = {}) {
   const el = document.getElementById(containerId);
   if (!el) return;
 
   const { peerId, username } = params; // ← מגיע מ-runScript
   const peerLabel = username || peerId || 'peer';
+  
+  userId = peerId;
 
   el.innerHTML = `
     <div style="max-width:720px;margin:24px auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;font:14px system-ui, sans-serif;">
@@ -35,19 +38,6 @@ export async function run(containerId = 'content', params = {}) {
     log.parentElement.scrollTop = log.parentElement.scrollHeight;
   };
 
-  const wire = (dc) => {
-    if (!dc) { println('[!] No DataChannel yet.'); st.textContent = 'waiting for channel'; sendBtn.disabled = true; return; }
-    st.textContent = dc.readyState;
-    sendBtn.disabled = dc.readyState !== 'open';
-    dc.onopen = () => { st.textContent = 'open'; sendBtn.disabled = false; println('[dc] open'); };
-    dc.onclose = () => { st.textContent = 'closed'; sendBtn.disabled = true; println('[dc] close'); };
-    dc.onmessage = (e) => { println('peer:', String(e.data)); };
-  };
-
-  // bind to current/future channel
-  wire(getDataChannel?.());
-  onPeerEvents?.({ ondc: (dc) => wire(dc), onconn: (state) => { st.textContent = state; } });
-
   // שליחה – משתמש ב-peerId שהועבר
   const send = () => {
     if (!peerId) { println('[err] No peerId provided'); return; }
@@ -66,4 +56,7 @@ export async function run(containerId = 'content', params = {}) {
 
   sendBtn.onclick = send;
   msg.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+}
+
+export async function onmessage(msg) {
 }

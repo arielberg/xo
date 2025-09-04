@@ -25,9 +25,13 @@ export function createPC(userId, channelName) {
     if( ! _dc[userId] )  _dc[userId] = {};
     _dc[userId][channelName] = dc;
   } 
+
   _pc[userId].ondatachannel = (ev) => {
     console.log('[pc] ondatachannel', ev.channel);
-    bindDataChannel(ev.channel);
+    console.log('[pc] userId', userId);
+    if( !_dc[userId] ) _dc[userId] = {};
+    _dc[userId][ev.channel.label] = ev.channel;
+    bindDataChannel( _dc[userId]['main'] );
   };
 
   _pc[userId].oniceconnectionstatechange = () =>

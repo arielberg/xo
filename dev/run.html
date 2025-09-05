@@ -1,0 +1,30 @@
+<!doctype html>
+<meta charset="utf-8" />
+<script type="module">
+    import { createShadowScript } from './shadowScript.js';
+
+    // מגדירים API מצומצם שהסקריפט רשאי לקרוא:
+  
+    const shadow = createShadowScript({
+      ops: {
+        log: (msg) => { console.log('[shadow]', msg); },
+        sum: (a,b) => a + b,
+      },
+      timeoutMs: 2000
+    });
+    
+    // קוד חיצוני שלא סומכים עליו (כמחרוזת):
+    const untrustedCode = `
+        console.log('aaaa',localStorage);
+        await call('log', 'hello from shadow');
+        const x = await call('sum', 2, 40);
+        // אין גישה ל-window/document/localStorage
+        return x; // 42
+    `;
+    
+    const result = await shadow.run(untrustedCode);
+    console.log('result =', result); // 42
+    shadow.terminate();
+    
+</script>
+<body>hello</body>

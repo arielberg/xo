@@ -1,6 +1,6 @@
 // /pages/addUser.js
 import { appendToList, runScript } from '../js/loader.js';
-import { createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
+import { ConvertTempToUID, createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
 import { b64urlEncode, b64urlDecode, getCertificateId , getCurrentCertificate } from '../js/utils.js';
 
 export async function run(containerId = "content") {
@@ -144,7 +144,8 @@ export async function run(containerId = "content") {
       btnProcess.disabled = true;
 
       let newUserId = await getCertificateId(parsedAnswer.cert);
-
+      
+      ConvertTempToUID(tempUid, newUserId);
       // Add to list immediately (if desired)
       appendToList('users', { 
         username: nameInput.value, 

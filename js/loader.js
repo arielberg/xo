@@ -1,4 +1,5 @@
 import { getList } from './utils.js';
+import { Apps } from './appsRegistry.js';
 
 let moduleCache = new Map();
     
@@ -12,6 +13,11 @@ export function initApp() {
         console.log('Service Worker registration failed:', error);
       });
       */
+
+    const apps = getList('apps');
+    console.log(apps);
+    Apps.loadList(apps);
+
     var pages = getList('pages');
     let queryParams = new URLSearchParams(window.location.search);
     var tabContainer = document.getElementById('tabs');

@@ -116,19 +116,6 @@ export async function run(containerId = "content") {
           logBox.scrollTop = logBox.scrollHeight;
         };
 
-        const bindPeerDebug = () => {
-          try {
-            onPeerEvents?.({
-              onice: (state) => { log('[pc] ice:', state); statusPill.textContent = state; },
-              onconn: (state) => { 
-                
-                  if (state === 'connected') {
-                    //  runScript('/apps/chat.js');
-                  }
-              }
-            });
-          } catch {}
-        };
 
         deleteBtn.onclick = async () => {
           try {
@@ -168,8 +155,6 @@ export async function run(containerId = "content") {
 
             const encoded = b64urlEncode(JSON.stringify(offerWrap));
 
-            bindPeerDebug();
-
             const link = `${location.origin}${location.pathname}?offer=${encoded}`;
             linkArea.value = link;
             linkArea.style.display = '';
@@ -205,8 +190,6 @@ export async function run(containerId = "content") {
             const parsedAnswer = JSON.parse(answerJson);
             console.log(user);
             await acceptAnswer(user.id, parsedAnswer.answer); // expects JSON string of RTCSessionDescriptionInit
-
-            bindPeerDebug(); // rebind in case pc was recreated internally
 
             statusText.textContent = 'Answer applied. Waiting for connection...';
             log('[ok] answer applied');

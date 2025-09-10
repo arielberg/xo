@@ -1,6 +1,6 @@
-import { getList } from './utils.js';
+import { getList, getIconButton } from './utils.js';
 import { Apps } from './appsRegistry.js';
-
+import { openModal } from './modal.js';
 let moduleCache = new Map();
     
 export function initApp() {
@@ -32,6 +32,7 @@ export function initApp() {
         }
         tabContainer.appendChild(tab);
     });
+   // createfooterBUttons();  
     runScript(getCurrentPage(queryParams), queryParams );
     
 }
@@ -43,10 +44,7 @@ export function getCurrentPage(queryParams) {
         return '/pages/createCertificate.js';
     }
     if( queryParams.has('offer') ) {
-        runScript('/pages/offerAnswer.js');
-    }
-    else {
-        runScript('/pages/settings.js');
+        return'/pages/offerAnswer.js';
     }
     return '/pages/home.js';
 }
@@ -69,34 +67,26 @@ export function runScript(pagePath, params) {
     }
 }
 
-export function appendToList(type, newItem, keys = [], override = true) {
-    // נטען את הרשימה הקיימת
-    let currentList = getList(type, []);
-
-    // נבדוק אם יש כבר פריט זהה לפי כל המפתחות
-    let index = currentList.findIndex(item =>
-        keys.every(key => item[key] === newItem[key])
-    );
-
-    if (index !== -1) {
-        if ( override ) {
-        // אם קיים → עדכון הפריט
-            currentList[index] = { ...currentList[index], ...newItem };
-            console.log(`Updated item in ${type}:`, newItem);
-        }
-    } else {
-        // אם לא קיים → הוספה
-        currentList.push(newItem);
-        console.log(`Appended item to ${type}:`, newItem);
+function createfooterBUttons(){
+    const deleteBtn = getIconButton('refresh', 'Refresh');
+    document.getElementById('footer').appendChild(deleteBtn);
+    deleteBtn.onclick=()=>{
+        window.location.reload();
     }
-
-    // נשמור במטמון וב־localStorage
-    moduleCache.set(type, currentList);
-    localStorage.setItem(type, JSON.stringify(currentList));
-
-    return currentList;
+    const openBtn = getIconButton('MoreCircled', 'OpenUrl');
+    document.getElementById('footer').appendChild(openBtn);
+    openBtn.onclick=()=>{
+        var content = document.createElement('div');
+        var inp = document.createElement('input');
+        inp.placeholder = 'Url To Open';
+        content.appendChild(inp);
+        var redirectBtn = {text:'Open Url'};
+        redirectBtn.onClick = ()=>{
+            window.location = inp.value;
+        };
+       openModal(content,[redirectBtn],{title:'Open Url'});
+    }
 }
-
 
 // Utility method to clear cache
 function clearCache() {
@@ -131,3 +121,9 @@ export function getCached(type) {
     }
 }
 
+export function cacheVar(name, value) {
+
+      // נשמור במטמון וב־localStorage
+      moduleCache.set(name, value);
+      localStorage.setItem(name, JSON.stringify(value));
+}

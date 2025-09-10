@@ -14,8 +14,7 @@
     });
     
     // קוד חיצוני שלא סומכים עליו (כמחרוזת):
-    const untrustedCode = `
-        console.log('aaaa',localStorage);
+    const untrustedCode = `        
         await call('log', 'hello from shadow');
         const x = await call('sum', 2, 40);
         // אין גישה ל-window/document/localStorage

@@ -1,4 +1,4 @@
-import { getCached, overrideCache } from './loader.js';
+import { getCached, overrideCache, cacheVar } from './loader.js';
 
 
 // עוזרות ל-base64url כששולחים/מקבלים SDP
@@ -17,7 +17,7 @@ export function getCurrentCertificate() {
     let certList = getList('certificates');
     
     let certInfo = certList.find( c => c.active );
-    console.log("Current certificate:", certInfo );
+    
     if( !certInfo ) {
      certInfo = certList.find( c => true );
     }
@@ -127,4 +127,34 @@ export function getIconButton(iconName, title = '') {
       // 4. default
       return overrideCache(type, newVal);
   }
+  export function refresh() {
+    window.location.reload();
+  }
+  export function appendToList(type, newItem, keys = [], override = true) {
+      // נטען את הרשימה הקיימת
+      let currentList = getList(type, []);
   
+      // נבדוק אם יש כבר פריט זהה לפי כל המפתחות
+      let index = -1;
+      if ( keys.length ) {
+        index = currentList.findIndex(item =>
+          keys.every(key => item[key] === newItem[key])
+        );
+      }
+  
+      if (index !== -1) {
+          if ( override ) {
+          // אם קיים → עדכון הפריט
+              currentList[index] = { ...currentList[index], ...newItem };
+              console.log(`Updated item in ${type}:`, newItem);
+          }
+      } else {
+          // אם לא קיים → הוספה
+          currentList.push(newItem);
+          console.log(`Appended item to ${type}:`, newItem);
+      }
+  
+      cacheVar(type, currentList);
+  
+      return currentList;
+  }

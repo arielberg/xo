@@ -20,7 +20,10 @@ app.use((req, res) => {
   res.status(404).send('File not found');
 });
 
-// Start HTTPS server
-https.createServer(options, app).listen(8443, () => {
-  console.log('HTTPS server running on port 8443');
-});
+
+['8443','8444','8445','8446','8447','8448','8449','8450'].forEach(port=>{
+  // Start HTTPS server
+  https.createServer(options, app).listen(port, () => {
+    console.log('HTTPS server running on port '+port);
+  });
+})

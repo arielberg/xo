@@ -1,6 +1,6 @@
 // settings.js
 import { runScript } from '../js/loader.js';
-import { getList } from '../js/utils.js';
+import { getList, appendToList, refresh } from '../js/utils.js';
 
 const STORAGE_KEY = 'certificates';
 
@@ -8,14 +8,14 @@ function loadCerts() {
   const fromLoader = getList?.(STORAGE_KEY);
   if (Array.isArray(fromLoader)) return fromLoader;
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    return JSON.parse(getList(STORAGE_KEY) || '[]');
   } catch {
     return [];
   }
 }
 
 function saveCerts(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  appendToList(STORAGE_KEY, JSON.stringify(list));
 }
 
 function download(filename, text) {
@@ -92,6 +92,21 @@ function renderList(container, list) {
   wrapper.appendChild(table);
 }
 
+export async function importSettings(settingText) {
+  const data = JSON.parse(settingText);
+  var uniqueKeys = {
+    'certificates':['cert'],
+    'apps':['name'],
+    'users':['id']
+  }
+  Object.keys(data).forEach(key => {
+    data[key].forEach(newEntery=>{
+      appendToList(key,newEntery, uniqueKeys[key],true);
+    })
+  });
+  refresh();
+};
+
 export async function run(containerId = 'content') {
   const container = document.getElementById(containerId);
   container.innerHTML = `
@@ -121,10 +136,7 @@ export async function run(containerId = 'content') {
             <button id="btnExport">Download JSON</button>
         </div>
         <div id='import_form' style='display:none'>
-            <input id="fileInput" type="file" accept="application/json" style="margin-left:8px" />
-            <label style="margin-left:8px;display:block;">
-                <input id="overwrite" type="checkbox" /> Overwrite duplicates
-            </label>
+            <input id="fileInput" type="file" accept="application/json" style="margin-left:8px" /> 
             <button id="btnImport" style="margin-left:8px;">Import</button>
         </div>
         <span id="importMsg" style="margin-left:8px; opacity:.7;"></span>
@@ -160,37 +172,30 @@ export async function run(containerId = 'content') {
   renderList(container, list);
 
   container.querySelector('#btnExport').onclick = () => {
-    list = loadCerts();
-    download('certificates.json', JSON.stringify(list, null, 2));
+    var output = {};
+    output.certificates = loadCerts();
+    output.users = getList('users',[]);
+    output.apps = getList('apps',[]);
+    download('certificates.json', JSON.stringify(output, null, 2));
   };
 
   container.querySelector('#btnImport').onclick = async () => {
     const msg = container.querySelector('#importMsg');
     const file = container.querySelector('#fileInput').files?.[0];
-    const overwrite = container.querySelector('#overwrite').checked;
+   
     if (!file) {
       msg.textContent = 'Select JSON file...';
       return;
     }
     try {
       const text = await file.text();
-      const data = JSON.parse(text);
-      const incoming = Array.isArray(data) ? data : data?.certificates;
-      if (!Array.isArray(incoming)) {
-        msg.textContent = 'Invalid JSON format';
-        return;
-      }
-      const existing = loadCerts();
-      const merged = overwrite ? incoming : existing.concat(incoming);
-      saveCerts(merged);
-      list = merged;
-      renderList(container, list);
-      msg.textContent = `Imported ${incoming.length} certificates`;
+      importSettings(text);
     } catch (e) {
       console.error(e);
       msg.textContent = 'Import failed';
     }
-  };
+  }
+
 
   container.querySelector('#btnAdd').onclick = async () => {
     await runScript?.('/pages/createCertificate.js');

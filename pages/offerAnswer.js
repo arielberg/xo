@@ -1,8 +1,8 @@
 // pages/offerAnswer.js — auto-apply, no incoming-offer UI, output = base64url(answer)
 // Uses shared encoders from ../js/utils.js
 
-import { getList, getCurrentCertificate,getCertificateId,downloadText, b64urlEncode, b64urlDecode } from '../js/utils.js';
-import { runScript, appendToList } from '../js/loader.js';
+import { getList, appendToList, getCurrentCertificate,getCertificateId,downloadText, b64urlEncode, b64urlDecode } from '../js/utils.js';
+import { runScript } from '../js/loader.js';
 import { createPC, sendMessage } from '../js/WebRtc.js';
 
 async function waitIceComplete(pc) {
@@ -16,6 +16,18 @@ async function waitIceComplete(pc) {
     };
     pc.addEventListener('icegatheringstatechange', onChange);
   });
+}
+export async function getOfferAnswer(callerCertId, remote) {
+  const pc = createPC(callerCertId);    
+
+  await pc.setRemoteDescription(remote);   // <-- key fix
+
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+
+  await waitIceComplete(pc);
+
+  return pc.localDescription;
 }
 
 export async function run(containerId = 'content', queryParams = null) {
@@ -96,18 +108,8 @@ export async function run(containerId = 'content', queryParams = null) {
     console.log(remote, offerObjOrWrapper );
     if (!remote) throw new Error('Invalid offer payload');
 
-
-    const pc = createPC(callerCertId);    
-
-    await pc.setRemoteDescription(remote);   // <-- key fix
     log('Remote description set. Creating answer...');
-
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-
-    await waitIceComplete(pc);
-
-    const fullAnswer = pc.localDescription; // RTCSessionDescription
+    const fullAnswer = await getOfferAnswer(callerCertId, remote); // RTCSessionDescription
     
     let currentCert = getCurrentCertificate();
     var responseAnswer = {

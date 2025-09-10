@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Iframe Switcher</title>
+<style>
+  :root { --gap: 8px }
+  html, body { height: 100% }
+  body { margin: 0; font-family: system-ui, sans-serif; height: 100vh; display: grid; grid-template-columns: 240px 1fr }
+  /* sidebar */
+  #toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    height: Calc(100vh - 21px);
+    background: #fff;
+    align-items: stretch;
+    overflow: auto;
+  }
+  #toolbar button { padding: 6px 10px; border: 1px solid #ccc; border-radius: 8px; background: #f5f5f5; cursor: pointer; text-align: left }
+  #toolbar button.active { background: #111; color: #fff; border-color: #111 }
+  #toolbar .spacer { flex: 1 }
+  /* stage */
+  #stage { position: relative; height: 100vh }
+  iframe.pane { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: none }
+  iframe.pane.active { display: block }
+</style>
+</head>
+<body>
+  <div id="toolbar" role="tablist" aria-label="Targets"></div>
+  <div id="stage"></div>
+
+  <script>
+    const ports = [8443,8444,8445,8446,8447,8448,8449,8450];
+    const toolbar = document.getElementById('toolbar');
+    const stage = document.getElementById('stage');
+
+    // build iframes and port buttons
+    ports.forEach((p, i) => {
+      const id = `frame-${p}`;
+
+      const iframe = document.createElement('iframe');
+      iframe.className = 'pane' + (i === 0 ? ' active' : '');
+      iframe.id = id;
+      iframe.dataset.port = p;
+      iframe.src = `https://localhost:${p}/`;
+      iframe.title = `https://localhost:${p}/`;
+      iframe.onload = () => {
+        console.log('loaded', p);
+        postCmd(p, 'getUid');
+      };
+      stage.appendChild(iframe);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = String(p);
+      btn.dataset.port = p;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-controls', id);
+      if (i === 0) btn.classList.add('active');
+      btn.addEventListener('click', () => setActive(p));
+      toolbar.appendChild(btn);
+    });
+/*
+    Promise.all(
+      ports.map(async (p) => {                  // keep as raw text
+        
+      })
+    );
+    */
+    // controls
+    const spacer = document.createElement('div'); spacer.className = 'spacer';
+    toolbar.appendChild(spacer);
+
+    const mkBtn = (text, id, handler) => {
+      const b = document.createElement('button'); b.id = id; b.textContent = text; b.type = 'button'; b.onclick = handler; toolbar.appendChild(b);
+    };
+
+    mkBtn('Refresh current', 'btn-refresh-current', () => refreshCurrent());
+    mkBtn('Refresh all',     'btn-refresh-all',     () => refreshAll());
+    mkBtn('Delete current cache', 'btn-clear-current', () => clearCurrent());
+    mkBtn('Delete all cache',     'btn-clear-all',     () => clearAll());
+    mkBtn('Connect all',     'btn-clear-all',     () => connectAll());
+
+    function setActive(port) {
+      document.querySelectorAll('#toolbar button[role="tab"]')
+        .forEach(b => b.classList.toggle('active', b.dataset.port == port));
+      document.querySelectorAll('iframe.pane')
+        .forEach(f => f.classList.toggle('active', f.dataset.port == port));
+      history.replaceState(null, '', `#${port}`);
+    }
+
+    const fromHash = location.hash.replace('#','');
+    if (ports.includes(Number(fromHash))) setActive(Number(fromHash));
+
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const current = Number(document.querySelector('#toolbar button.active')?.dataset.port);
+      const idx = ports.indexOf(current);
+      const next = e.key === 'ArrowLeft'
+        ? ports[(idx - 1 + ports.length) % ports.length]
+        : ports[(idx + 1) % ports.length];
+      setActive(next);
+    });
+
+
+    // helpers
+    const getActivePort = () => Number(document.querySelector('#toolbar button.active')?.dataset.port);
+    const getFrame = (port) => document.querySelector(`iframe.pane[data-port="${port}"]`);
+
+    // refresh logic (works cross-origin)
+    function reloadFrame(ifr) {
+      if (!ifr) return;
+      const url = new URL(ifr.src);
+      url.searchParams.set('_r', Date.now().toString());
+      ifr.src = url.toString();
+    }
+    function refreshCurrent() { reloadFrame(getFrame(getActivePort())); }
+    function refreshAll() { document.querySelectorAll('iframe.pane').forEach(reloadFrame); }
+
+    // cache clear via postMessage to each app (requires listener below)
+    function postCmd(port, cmd, args) {
+      const ifr = getFrame(port); if (!ifr) return;
+      const origin = `https://localhost:${port}`;
+      ifr.contentWindow.postMessage({ type:'dev', method:cmd , args }, origin);
+    }
+    function clearCurrent() { const p = getActivePort(); if (p) postCmd(p, 'clearAllData'); }
+    function clearAll() { ports.forEach(p => postCmd(p, 'clearAllData')); }
+
+    var uidByPort = {};
+    window.addEventListener('message', e => {
+      const msg = e.data || {};
+      if ( msg.type != 'dev-response') return;
+      var port = e.origin.split(":")[2]
+      switch (msg.method) {
+        case "getUid":          
+          uidByPort[port] = msg.result
+        break;
+        case "getOffer":
+          var calleeId = msg.result.uid;
+          var calleePort = Object.keys(uidByPort).find(key => uidByPort[key] === calleeId);
+          var answer = JSON.parse(msg.result.offer);
+          postCmd(calleePort, 'offerAnswer', [ uidByPort[port], answer]);
+        break;
+        case "offerAnswer":
+          var callerId = msg.result.uid;
+          var callerPort = Object.keys(uidByPort).find(key => uidByPort[key] === callerId);
+          var answer = JSON.parse(msg.result.answer);
+          
+          postCmd(callerPort, 'processAnswer', [ uidByPort[port], answer]);
+        break;
+        case "acceptAnswer":
+          console.log('acceptAnswer',e);
+        break;
+
+      }
+    });
+    
+    async function connectAll() {   
+      //loadAll(); return;
+      var connactions = {
+        "8443" : ["8444","8446"],
+        "8444" : ["8445"],
+        "8445" : ["8447"],
+        "8446" : [],
+        "8447" : ["8448"],
+        "8448" : ["8449"],
+      };
+     // var connactions = {"8443" : ["8446"]};
+      Object.keys(connactions).forEach(callerP=>{
+        connactions[callerP].forEach(calleeP=>{
+          postCmd(callerP, 'getOffer', [uidByPort[calleeP]]);
+        })
+      });
+    }
+    async function loadAll() {
+      await Promise.all(
+        ports.map(async (p) => {
+          const url = `/devScripts/certificates/${encodeURIComponent(p)}.json`;
+          const res = await fetch(url, { cache: 'no-cache' });
+          if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          const text = await res.text();            // keep as raw text
+          await postCmd(p, 'importSettings', [text]);
+        })
+      );
+    }
+  </script>
+</body>
+</html>

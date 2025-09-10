@@ -1,6 +1,6 @@
-import { runScript, appendToList, getCurrentPage } from '../js/loader.js';
+import { runScript, getCurrentPage } from '../js/loader.js';
 import createCA from '../wasm/ssl/ca.js';
-import {getList, getCertificateId} from '../js/utils.js';
+import {getList, getCertificateId, appendToList} from '../js/utils.js';
 
 
 export async function run(containerId = "content", queryParams = {}) {

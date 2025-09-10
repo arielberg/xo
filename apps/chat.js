@@ -51,6 +51,7 @@ const fmtTime = (ts) => new Date(ts).toLocaleTimeString();
 function println(text, who = 'me', ts = Date.now()) {
   if (!elems.log) return;
   const line = document.createElement('div');
+  who = who.substr(0,15);
   line.style.margin = '6px 0';
   line.innerHTML = `<span style="color:#6b7280">${fmtTime(ts)}</span> · 
                     <strong>${who === 'me' ? 'me' : who}</strong>: 

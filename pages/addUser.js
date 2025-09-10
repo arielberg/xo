@@ -1,7 +1,32 @@
 // /pages/addUser.js
-import { appendToList, runScript } from '../js/loader.js';
+import { runScript } from '../js/loader.js';
 import { ConvertTempToUID, createOffer, acceptAnswer, onPeerEvents } from '../js/WebRtc.js';
-import { b64urlEncode, b64urlDecode, getCertificateId , getCurrentCertificate } from '../js/utils.js';
+import { appendToList, b64urlEncode, b64urlDecode, getCertificateId , getCurrentCertificate } from '../js/utils.js';
+
+export async function getInviteUserLink(username) {
+  const currentCertificate = getCurrentCertificate?.() || {};
+
+  let tempUid = "10000000100040008000".replace(/[018]/g, c =>
+    (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+  );
+  // create offer
+  const offerRes = await createOffer(tempUid);
+  const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
+
+  // include current certificate (if any)
+  
+  const offerWrap = {
+    offer: offerObj,
+    username: currentCertificate?.username,
+    isNew: true,
+    cert: currentCertificate?.cert
+  };
+
+  const encoded = b64urlEncode(JSON.stringify(offerWrap));
+
+  const url = `${location.origin}${location.pathname}?offer=${b64urlEncode(JSON.stringify(offerWrap))}`;
+  return { url, tempUid };
+}
 
 export async function run(containerId = "content") {
   const el = document.getElementById(containerId);
@@ -63,17 +88,8 @@ export async function run(containerId = "content") {
     logs.scrollTop = logs.scrollHeight;
   };
 
-  const bindPeerDebug = () => {
-    try {
-      onPeerEvents?.({
-        onice: (state) => { log('[pc] ice:', state); pill.textContent = state; },
-        onconn: (state) => { log('[pc] conn:', state); pill.textContent = state; }
-      });
-    } catch {}
-  };
-
   var tempUid;
-
+  
   btnCreate.onclick = async () => {
     try {
       const username = (nameInput.value || '').trim();
@@ -81,39 +97,19 @@ export async function run(containerId = "content") {
 
       btnCreate.disabled = true;
       pill.textContent = 'creating offer...';
+      var res = await getInviteUserLink(username);
 
-      const currentCertificate = getCurrentCertificate?.() || {};
-
-      tempUid = "10000000100040008000".replace(/[018]/g, c =>
-        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
-      );
-      // create offer
-      const offerRes = await createOffer(tempUid);
-      const offerObj = offerRes?.type ? offerRes : (offerRes?.fullOffer ?? offerRes);
-
-      // include current certificate (if any)
-      
-      const offerWrap = {
-        offer: offerObj,
-        username: currentCertificate?.username,
-        isNew: true,
-        cert: currentCertificate?.cert
-      };
-
-      const encoded = b64urlEncode(JSON.stringify(offerWrap));
-      bindPeerDebug();
-
-      // Share link (auto-copy)
-      const link = `${location.origin}${location.pathname}?offer=${encoded}`;
-      linkInput.value = link;
+      tempUid = res.tempUid;
+      linkInput.value = res.url;
       linkInput.style.display = '';
 
+      /*
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(link);
+        await navigator.clipboard.writeText(res.url);
       } else {
         linkInput.select(); document.execCommand('copy');
       }
-
+      */
 
       pill.textContent = 'link copied — waiting for answer';
       answerWrap.style.display = '';
@@ -137,8 +133,7 @@ export async function run(containerId = "content") {
       const answerJson = b64urlDecode(encodedAnswer);
       const parsedAnswer = JSON.parse(answerJson);
       await acceptAnswer(tempUid, parsedAnswer.answer);
-
-      bindPeerDebug();
+     
       pill.textContent = 'answer applied — connecting...';
       log('[ok] answer applied');
       btnProcess.disabled = true;

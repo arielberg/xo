@@ -1,162 +1,213 @@
-/* ============ Modern Minimal (auto light/dark) ============ */
-* { box-sizing: border-box; }
+/* ===== Modern App Skin (light/dark, tactile) ===== */
+* { box-sizing: border-box }
 :root{
-  --bg: #f7f7fa;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --muted: #6b7280;
-  --accent: #3b82f6;
-  --accent-600:#2563eb;
-  --border: #e5e7eb;
+  --bg: #0b1220;                /* set dark by default, swap via media */
+  --bg-elev: #0f172a;
+  --surface: #111827;
+  --text: #e5e7eb;
+  --muted: #9aa3b2;
+  --border: #1f2937;
+  --accent: #7c3aed;
+  --accent-600:#6d28d9;
+  --positive:#10b981; --warn:#f59e0b; --danger:#ef4444;
+
   --radius: 14px;
   --header-h: 64px;
-  --footer-h: 56px;
-  --shadow: 0 10px 30px rgba(2, 6, 23, .06);
-  --glass: blur(10px) saturate(120%);
+  --footer-h: 64px;
+  --shadow-lg: 0 14px 40px rgba(2,6,23,.45);
+  --shadow: 0 8px 24px rgba(2,6,23,.35);
+  --ring: 0 0 0 4px color-mix(in oklab, var(--accent) 28%, transparent);
+  --glass: blur(12px) saturate(130%);
 }
-@media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: light){
   :root{
-    --bg: #0b1220;
-    --surface:#0f172a;
-    --text:#e5e7eb;
-    --muted:#94a3b8;
-    --accent:#60a5fa;
-    --accent-600:#3b82f6;
-    --border:#1f2937;
-    --shadow: 0 12px 32px rgba(0,0,0,.35);
+    --bg:#f6f7fb; --bg-elev:#ffffff; --surface:#ffffff;
+    --text:#0f172a; --muted:#6b7280; --border:#e6e7eb;
+    --shadow-lg: 0 18px 50px rgba(2,6,23,.08);
+    --shadow: 0 10px 30px rgba(2,6,23,.06);
   }
 }
 
-html, body { height: 100%; }
+html, body { height:100% }
 body{
-  margin:0;
-  color:var(--text);
+  margin:0; color:var(--text);
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.15), transparent 60%),
-    radial-gradient(1000px 500px at 110% 10%, rgba(168,85,247,.10), transparent 60%),
+    radial-gradient(1200px 600px at 15% -10%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 60%),
+    radial-gradient(900px 500px at 120% 0%, rgba(16,185,129,.18), transparent 60%),
     var(--bg);
   font: 15px/1.5 ui-sans-serif, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial;
   letter-spacing:.1px;
   padding: var(--header-h) 0 var(--footer-h);
+  accent-color: var(--accent);
 }
 
 /* App container */
 #app{ min-height:100%; }
 
-/* ======= Header (glass + tabs pills) ======= */
+/* ===== App Bar ===== */
 #header{
   position: fixed; inset: 0 0 auto 0; height: var(--header-h);
-  display:flex; align-items:center; gap:12px; padding:0 16px;
-  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  display:flex; align-items:center; gap:12px; padding:0 18px;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--bg-elev) 85%, transparent), color-mix(in oklab, var(--bg-elev) 60%, transparent)),
+    var(--bg-elev);
   -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
   z-index: 1000;
-  border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
+}
+#header::after{
+  content:""; position:absolute; inset:auto 0 0 0; height:3px;
+  background: linear-gradient(90deg, var(--accent), var(--positive));
+  opacity:.85;
 }
 
-#bars{ flex:0 0 auto; margin-right:4px; cursor:pointer; opacity:.8; transition:transform .15s ease, opacity .15s ease; }
-#bars:hover{ transform: scale(1.06); opacity:1; }
+/* App bar left icon */
+#bars{ flex:0 0 auto; margin-right:6px; cursor:pointer; opacity:.85;
+  transition:transform .15s ease, opacity .15s ease; }
+#bars:hover{ transform: scale(1.06); opacity:1 }
 
-/* Tabs: pill + underline indicator */
-#tabs{ display:flex; align-items:center; gap:8px; overflow:auto hidden; scrollbar-width: thin; }
-#tabs::-webkit-scrollbar{ height:6px; }
-#tabs::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.15); border-radius:8px; }
+/* ===== Tabs: pill + glow underline ===== */
+#tabs{ display:flex; align-items:center; gap:8px; overflow:auto hidden; scrollbar-width: thin }
+#tabs::-webkit-scrollbar{ height:6px }
+#tabs::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.25); border-radius:8px }
 
 #header .tab{
-  position: relative;
-  flex:0 0 auto;
-  padding: 10px 14px;
-  border-radius: 999px;
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 14px;
+  position: relative; flex:0 0 auto;
+  padding: 10px 14px; border-radius: 999px;
+  color: var(--muted); font-weight: 600; font-size: 14px;
   border:1px solid var(--border);
-  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  background: color-mix(in oklab, var(--bg-elev) 80%, transparent);
   cursor:pointer;
-  transition: color .15s ease, background .15s ease, border-color .15s ease, transform .05s ease;
+  transition: color .15s, background .15s, border-color .15s, transform .05s, box-shadow .15s;
 }
-#header .tab:hover{ color: var(--text); border-color: color-mix(in oklab, var(--border) 50%, var(--accent) 20%); }
-#header .tab:active{ transform: translateY(1px); }
+#header .tab:hover{
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--border) 50%, var(--accent) 35%);
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+#header .tab:active{ transform: translateY(1px) }
 #header .tab.active{
-  color: color-mix(in oklab, var(--text) 90%, var(--accent) 20%);
-  border-color: color-mix(in oklab, var(--accent) 60%, var(--border) 20%);
-  background: color-mix(in oklab, var(--surface) 70%, var(--accent) 10%);
+  color: color-mix(in oklab, var(--text) 92%, var(--accent) 25%);
+  border-color: color-mix(in oklab, var(--accent) 65%, var(--border) 20%);
+  background:
+    radial-gradient(120% 120% at 0% 0%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 45%),
+    color-mix(in oklab, var(--bg-elev) 86%, transparent);
 }
 #header .tab.active::after{
-  content:""; position:absolute; left:12px; right:12px; bottom:-9px; height:3px;
+  content:""; position:absolute; left:12px; right:12px; bottom:-9px; height:4px;
   background: linear-gradient(90deg, var(--accent), var(--accent-600));
-  border-radius: 6px;
+  border-radius: 6px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
 }
 
-/* ======= Content card ======= */
+/* ===== Workspace ===== */
 #content{
-  margin: 18px auto;
-  padding: 20px;
-  width: min(1100px, 92vw);
-  background: var(--surface);
+  margin: 20px auto; padding: 20px;
+  width: min(1200px, 94vw);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--bg-elev) 92%, transparent), transparent),
+    var(--surface);
   border:1px solid var(--border);
   border-radius: 18px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-lg);
   max-height: calc(100vh - (var(--header-h) + var(--footer-h) + 56px));
   overflow: auto;
+  animation: pop .18s ease-out;
 }
+@keyframes pop{ from{ transform: translateY(6px) scale(.985); opacity:0 } to{ transform:none; opacity:1 }}
 
-/* ======= Footer (tool bar) ======= */
+/* ===== Action Bar ===== */
 #footer{
   position: fixed; inset: auto 0 0 0; height: var(--footer-h);
   display:flex; align-items:center; justify-content:center; gap:12px; padding:0 16px;
-  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--bg-elev) 85%, transparent), color-mix(in oklab, var(--bg-elev) 60%, transparent)),
+    var(--bg-elev);
   -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
   border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(2,6,23,.18);
   z-index: 1000;
 }
 
-/* ======= Inputs & Buttons ======= */
-input[type="text"]{
-  height: 42px;
-  font-size: 15px; color: var(--text);
-  background: var(--surface);
-  border:1px solid var(--border);
-  border-radius: 12px;
-  padding: 8px 12px; outline:none;
-  transition: border-color .15s ease, box-shadow .15s ease;
+/* ===== Inputs ===== */
+input[type="text"], input[type="search"], textarea, select{
+  height: 44px; font-size: 15px; color: var(--text);
+  background: color-mix(in oklab, var(--surface) 90%, transparent);
+  border:1px solid var(--border); border-radius: 12px;
+  padding: 10px 12px; outline:none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
 }
-input[type="text"]::placeholder{ color: color-mix(in oklab, var(--muted) 80%, transparent); }
-input[type="text"]:focus{
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 30%, transparent);
-}
+textarea{ height:auto; min-height:90px; resize: vertical; line-height:1.45 }
+input::placeholder, textarea::placeholder{ color: color-mix(in oklab, var(--muted) 80%, transparent) }
+input:focus, textarea:focus, select:focus{ border-color: var(--accent); box-shadow: var(--ring) }
 
-button{
-  height: 42px; padding: 0 16px;
+/* ===== Buttons ===== */
+button, .btn{
+  height: 44px; padding: 0 18px;
   font-size: 15px; font-weight: 700; letter-spacing:.2px;
-  color: #fff; background: linear-gradient(180deg, var(--accent), var(--accent-600));
+  color: #fff;
+  background: linear-gradient(180deg, var(--accent), var(--accent-600));
   border: 0; border-radius: 12px; cursor:pointer;
   box-shadow: var(--shadow);
-  transition: transform .05s ease, filter .15s ease;
+  transition: transform .05s, filter .15s, box-shadow .15s;
 }
-button:hover{ filter: brightness(1.05); }
-button:active{ transform: translateY(1px); }
+button:hover, .btn:hover{ filter: brightness(1.06) }
+button:active, .btn:active{ transform: translateY(1px) }
+.btn.ghost{
+  background: transparent; color: var(--text);
+  border:1px solid var(--border); box-shadow:none;
+}
+.btn.outline{
+  background: transparent; color: var(--accent);
+  border:1px solid color-mix(in oklab, var(--accent) 60%, var(--border) 40%);
+}
+.btn.success{ background: linear-gradient(180deg, var(--positive), #0e9f6e) }
+.btn.warn{ background: linear-gradient(180deg, var(--warn), #d97706) }
+.btn.danger{ background: linear-gradient(180deg, var(--danger), #dc2626) }
 
 /* Text utilities */
-.hint{ color: var(--muted); font-size: 13px; }
+.hint{ color: var(--muted); font-size: 13px }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 16px;
+/* ===== Tables ===== */
+table{ width:100%; border-collapse: collapse; margin-top:16px }
+thead th{
+  text-align:left; font-size:13px; color:var(--muted);
+  border-bottom:1px solid var(--border); padding:10px 8px; position:sticky; top:0;
+  background: var(--surface);
 }
+td{ padding:10px 8px; border-bottom:1px solid color-mix(in oklab, var(--border) 80%, transparent) }
+tbody tr:hover{ background: color-mix(in oklab, var(--surface) 85%, transparent) }
 
-/* ======= Mobile ======= */
+/* ===== Modal (theme-aware) ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal{
+  background: var(--surface); color: var(--text);
+  max-width:560px; width:calc(100% - 32px);
+  border:1px solid var(--border); border-radius:16px;
+  box-shadow: var(--shadow-lg); display:flex; flex-direction:column; overflow:hidden
+}
+.modal-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.modal-title{font-weight:700}
+.modal-x{margin-left:auto;border:none;background:transparent;font-size:20px;line-height:1;cursor:pointer;color:var(--muted)}
+.modal-x:hover{ color: var(--text) }
+.modal-body{padding:14px;max-height:65vh;overflow:auto}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--border)}
+.modal-btn{padding:10px 14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:transparent;color:var(--text)}
+.modal-btn--primary{background: linear-gradient(180deg, var(--accent), var(--accent-600)); color:#fff; border:0}
+
+/* ===== Chips / Badges (optional) ===== */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-weight:600;font-size:12px;border:1px solid var(--border);background:color-mix(in oklab, var(--surface) 85%, transparent)}
+.badge.dot::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--accent)}
+
+/* ===== Mobile ===== */
 @media (max-width: 640px){
-  :root{ --header-h: 60px; --footer-h: 56px; }
-  #header{ padding: 0 12px; }
-  #header .tab{ padding: 8px 12px; font-size: 13px; }
-  #content{ padding: 14px; margin: 12px auto; }
+  :root{ --header-h: 60px; --footer-h: 60px }
+  #header{ padding: 0 12px }
+  #header .tab{ padding: 8px 12px; font-size: 13px }
+  #content{ padding: 14px; margin: 12px auto }
 }
 
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce){
-  *{ transition:none !important; animation:none !important; }
+  *{ transition:none !important; animation:none !important }
 }

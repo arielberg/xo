@@ -72,11 +72,32 @@ body{
 #tabs::-webkit-scrollbar{ height:6px }
 #tabs::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.25); border-radius:8px }
 
-
-#header h1 {
-  margin:0 auto;
-  width:100%;
-  text-align: center;
+#header .tab{
+  position: relative; flex:0 0 auto;
+  padding: 10px 14px; border-radius: 999px;
+  color: var(--muted); font-weight: 600; font-size: 14px;
+  border:1px solid var(--border);
+  background: color-mix(in oklab, var(--bg-elev) 80%, transparent);
+  cursor:pointer;
+  transition: color .15s, background .15s, border-color .15s, transform .05s, box-shadow .15s;
+}
+#header .tab:hover{
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--border) 50%, var(--accent) 35%);
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+#header .tab:active{ transform: translateY(1px) }
+#header .tab.active{
+  color: color-mix(in oklab, var(--text) 92%, var(--accent) 25%);
+  border-color: color-mix(in oklab, var(--accent) 65%, var(--border) 20%);
+  background:
+    radial-gradient(120% 120% at 0% 0%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 45%),
+    color-mix(in oklab, var(--bg-elev) 86%, transparent);
+}
+#header .tab.active::after{
+  content:""; position:absolute; left:12px; right:12px; bottom:-9px; height:4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-600));
+  border-radius: 6px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
 }
 
 /* ===== Workspace ===== */
@@ -189,82 +210,4 @@ tbody tr:hover{ background: color-mix(in oklab, var(--surface) 85%, transparent)
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce){
   *{ transition:none !important; animation:none !important }
-}
-
-/* —— Footer tab bar (icons always, labels responsive) —— */
-
-/* structure */
-#footer { container-type: inline-size; }              /* enables container queries */
-#footer #tabs{
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;      /* equal-width tabs */
-  align-items: center;
-  width: min(1100px, 100%);
-  gap: 6px;
-}
-#footer .tab{
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  height: 48px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--bg-elev) 82%, transparent);
-  cursor: pointer;
-  transition: color .15s, border-color .15s, background .15s, transform .05s, box-shadow .15s;
-}
-#footer .tab:hover{
-  color: var(--text);
-  border-color: color-mix(in oklab, var(--accent) 55%, var(--border) 45%);
-  box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 18%, transparent);
-}
-#footer .tab:active{ transform: translateY(1px) }
-
-/* active indicator sits at the TOP of the tab (since it's in the footer) */
-#footer .tab.active{
-  color: color-mix(in oklab, var(--text) 92%, var(--accent) 25%);
-  border-color: color-mix(in oklab, var(--accent) 65%, var(--border) 20%);
-  background:
-    radial-gradient(120% 120% at 0% 0%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 45%),
-    color-mix(in oklab, var(--bg-elev) 86%, transparent);
-}
-#footer .tab.active::before{
-  content:"";
-  position:absolute; left:12px; right:12px; top:-9px; height:4px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-600));
-  border-radius: 6px;
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
-}
-
-/* icon + label */
-#footer .tab .icon{
-  width: 20px; height: 20px; line-height: 0; display: inline-block;
-  color: currentColor;
-}
-#footer .tab .icon svg{ width: 20px; height: 20px; fill: currentColor }
-
-/* label hidden by default on tight layouts */
-#footer .tab .label{
-  display: none;
-  font-size: 12px; line-height: 1; font-weight: 600;
-}
-
-/* show labels when the footer is wide enough (container query) */
-@container (min-width: 540px){
-  #footer .tab{ height: 56px }
-  #footer .tab .label{ display: block }
-}
-
-/* fallback if container queries aren’t supported */
-@supports not (container-type: inline-size){
-  @media (min-width: 700px){
-    #footer .tab{ height: 56px }
-    #footer .tab .label{ display: block }
-  }
 }

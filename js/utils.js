@@ -59,6 +59,14 @@ function toBase58(bytes){
   return (leadingZeros === -1 ? '1'.repeat(bytes.length) : '1'.repeat(Math.max(0, leadingZeros))) + out;
 }
 
+export async function getIconSVG(iconName) {
+  const url = `../icons/${encodeURIComponent(iconName)}.svg`;
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const svg = await res.text();
+  return svg;
+}
+
 export function getIconButton(iconName, title = '') {
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -68,11 +76,8 @@ export function getIconButton(iconName, title = '') {
 
   // נטען את ה־SVG; אם נכשל – ניפול לטקסט
   (async () => {
-    try {
-      const url = `../icons/${encodeURIComponent(iconName)}.svg`;
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const svg = await res.text();
+    try {      
+      const svg = await getIconSVG(iconName) ;
 
       btn.innerHTML = svg;
       const svgEl = btn.querySelector('svg');

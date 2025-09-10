@@ -1,7 +1,5 @@
 [
     {"path": "/pages/users.js","title":"Users","icon":"User"},
     {"path": "/pages/apps.js","title":"Apps","icon":"Apps"},
-    {"path": "/apps/postMessage.js","title":"Chat","icon":"Chat"},
-    {"path": "/pages/test.js","title":"Test","icon":"Chat"},
     {"path": "/pages/settings.js","title":"Settings","icon":"Settings"}    
 ]

@@ -86,6 +86,7 @@
     mkBtn('Delete current cache', 'btn-clear-current', () => clearCurrent());
     mkBtn('Delete all cache',     'btn-clear-all',     () => clearAll());
     mkBtn('Connect all',     'btn-clear-all',     () => connectAll());
+    mkBtn('Load Certificates', 'btn-load-all',     () => loadAll());
 
     function setActive(port) {
       document.querySelectorAll('#toolbar button[role="tab"]')

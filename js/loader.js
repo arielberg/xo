@@ -1,4 +1,4 @@
-import { getList, getIconButton } from './utils.js';
+import { getList, getIconButton, getIconSVG } from './utils.js';
 import { Apps } from './appsRegistry.js';
 import { openModal } from './modal.js';
 let moduleCache = new Map();
@@ -22,9 +22,14 @@ export function initApp() {
     let queryParams = new URLSearchParams(window.location.search);
     var tabContainer = document.getElementById('tabs');
     pages.forEach(page => {
-        var tab = document.createElement('div');
+        var tab = document.createElement('button');
         tab.className = 'tab';
-        tab.textContent = page.title;
+        var btn_icon = document.createElement('span');
+        getIconSVG(page.icon).then(svg => btn_icon.innerHTML = svg);
+        var btn_text = document.createElement('span');
+        btn_text.textContent = page.title;
+        tab.appendChild(btn_icon);
+        tab.appendChild(btn_text);
         tab.onclick = async () => { 
                 console.log(`Loading page: ${page.title} from ${page.path}`,page);
                 runScript(page.path);

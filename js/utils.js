@@ -1,5 +1,6 @@
+import { Apps } from './appsRegistry.js';
 import { getCached, overrideCache, cacheVar } from './loader.js';
-
+import { sendMessage } from './WebRtc.js';
 
 // עוזרות ל-base64url כששולחים/מקבלים SDP
 export function b64urlEncode(str) {
@@ -66,6 +67,18 @@ export async function getIconSVG(iconName) {
   const svg = await res.text();
   return svg;
 }
+
+export async function syncData(userId) {
+  var syncData = {};
+  syncData.connId = await getCertificateId( getCurrentCertificate().cert);
+  console.log(syncData);
+  var users = getList('users');
+  syncData.peers = users.map(u=>u.id);
+  syncData.apps = Array.from( Apps.getMap().keys() );
+ 
+  sendMessage(syncData, 'system', userId); 
+}
+
 
 export function getIconButton(iconName, title = '') {
   const btn = document.createElement('button');

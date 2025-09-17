@@ -54,6 +54,9 @@ export function getCurrentPage(queryParams) {
     return '/pages/home.js';
 }
 
+export function openApp(){
+    
+}
 
 export function runScript(pagePath, params) {
     try {

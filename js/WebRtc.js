@@ -1,5 +1,6 @@
 import rsa_encrypt_b64 from '../wasm/ssl/ca.js';
 import { Apps } from './appsRegistry.js';
+import {syncData} from './utils.js';
 
 let _pc = [];
 let _dc = {};
@@ -13,6 +14,15 @@ function ensureMaps(peerId) {
 export function onPeerEvents(handlers = {}) {
   //_handlers = handlers;
   //if (_dc && _handlers?.ondc) _handlers.ondc(_dc);
+}
+
+export function getPC(userId) {
+
+  if( !userId ) throw new TypeError('userId must be provided');
+
+  if (_pc[userId]) return _pc[userId];
+  
+  return null;
 }
 
 export function createPC(userId, channelName) {
@@ -37,10 +47,16 @@ export function createPC(userId, channelName) {
     wireDC(userId, _dc[userId][ ev.channel.label ] );
   };
 
-  _pc[userId].oniceconnectionstatechange = () =>
+  _pc[userId].oniceconnectionstatechange = () => {
     console.log('[pc] ice:', _pc[userId].iceConnectionState);
-  _pc[userId].onconnectionstatechange = () =>
+  }
+  
+  _pc[userId].onconnectionstatechange = () => {
     console.log('[pc] conn:', _pc[userId].connectionState);
+    if ( _pc[userId].connectionState == 'connected') {
+      syncData(userId);
+    }
+  }
 
   return _pc[userId];
 }
@@ -51,11 +67,12 @@ export async function ConvertTempToUID(tempId, userId) {
   delete _pc[tempId];
   delete _dc[tempId];
 }
+
 export async function createOffer(userId) {
   
   if( !userId ) throw new TypeError('userId must be provided');
 
-  const pc = createPC(userId, 'main');                         // ensures DC exists in SDP
+  const pc = createPC(userId, 'system');                         // ensures DC exists in SDP
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
 

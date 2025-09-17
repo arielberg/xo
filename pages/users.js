@@ -216,6 +216,6 @@ export async function run(containerId = "content") {
       container.innerHTML += `<p class="text-danger">Error loading users</p>`;
     }
   }
-  console.log('aaaa');
+  
   gernerateUserTable();
 }

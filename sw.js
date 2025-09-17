@@ -2,7 +2,8 @@ const CACHE_NAME = 'web3-pwa-v1';
 const CACHE_VERSION = '1.0';
 
 // Files to cache for offline functionality
-const urlsToCache = [
+const urlsToCache = [];
+  /*
   './',
   './index.html',
   './manifest.json',
@@ -16,6 +17,7 @@ const urlsToCache = [
   // './script.js',
   // './images/icon-192.png'
 ];
+*/
 
 // Install event - cache resources
 self.addEventListener('install', event => {

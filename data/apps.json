@@ -1,3 +1,5 @@
 [
-    {"name":"chat","path":"/apps/chat.js"}
+    "/apps/chat.js",
+    "/apps/anon.js",
+    "/apps/LastImage.js"
 ]

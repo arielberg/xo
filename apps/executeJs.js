@@ -15,3 +15,14 @@ class MyPage {
         document.body.appendChild(p);
     }
 }
+
+// ---------- app object for AppsRegistry ----------
+export default {
+    name: 'JS Executer',
+    onLoad() {
+      // no-op
+    },
+    onMessage(data, { from }) {
+    
+    }
+  };

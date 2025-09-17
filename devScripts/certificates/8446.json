@@ -14,10 +14,5 @@
       "username": "Main 43"
     }
   ],
-  "apps": [
-    {
-      "name": "chat",
-      "path": "/apps/chat.js"
-    }
-  ]
+  "apps": []
 }

@@ -8,10 +8,5 @@
     }
   ],
   "users": [],
-  "apps": [
-    {
-      "name": "chat",
-      "path": "/apps/chat.js"
-    }
-  ]
+  "apps": []
 }

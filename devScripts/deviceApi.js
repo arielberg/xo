@@ -46,7 +46,7 @@ console.log('Dev mode: device api loaded' );
   
     const msg = e.data || {};
     if (msg.type !== 'dev') return;
-    console.log(e);
+
     const fn = window.DeviceAPI[msg.method];
     Promise.resolve(fn ? fn(...(msg.args || [])) : Promise.reject('no such method'))
       .then(result => {
